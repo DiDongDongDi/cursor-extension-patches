@@ -1,0 +1,31 @@
+{
+    "name": "markdown-preview-checkbox-sync",
+    "displayName": "Markdown Preview Checkbox Sync (MyNotes)",
+    "description": "Sync built-in markdown preview checkbox clicks back to source files.",
+    "version": "0.1.2",
+    "publisher": "kody-local",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.84.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished",
+        "onUri",
+        "onCommand:markdownPreviewCheckboxSync.toggle"
+    ],
+    "main": "./extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "markdownPreviewCheckboxSync.toggle",
+                "title": "Toggle Markdown Preview Checkbox"
+            }
+        ],
+        "markdown.previewScripts": [
+            "./preview/checkbox-sync.js"
+        ]
+    }
+}

@@ -1,0 +1,39 @@
+<!--
+  滚轮缩放 / 双击跳原文 等逻辑在扩展 media/*.js 中实现。
+  这里只保留灯箱相关兜底样式。
+-->
+<style>
+    .mpe-lightbox-overlay {
+        overflow: hidden !important;
+        overscroll-behavior: none !important;
+    }
+    .mpe-lightbox-overlay img {
+        transform-origin: center center;
+        will-change: transform;
+    }
+    body:has(.mpe-lightbox-overlay.mpe-lightbox-visible) {
+        overflow: hidden !important;
+    }
+
+    /* diff 红绿配色（vue 主题默认只有删除线/下划线） */
+    .token.deleted,
+    .token.deleted-sign,
+    .token.prefix.deleted {
+        color: #cf222e !important;
+        background-color: #ffebe9 !important;
+        text-decoration: none !important;
+    }
+    .token.inserted,
+    .token.inserted-sign,
+    .token.prefix.inserted {
+        color: #1a7f37 !important;
+        background-color: #dafbe1 !important;
+        border-bottom: none !important;
+        text-decoration: none !important;
+    }
+    .token.coord {
+        color: #0969da !important;
+        background-color: #ddf4ff !important;
+        font-weight: 600;
+    }
+</style>
