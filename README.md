@@ -4,6 +4,7 @@
 
 > GitHub：https://github.com/DiDongDongDi/cursor-extension-patches  
 > 本地路径：`~/cursor-extension-patches`  
+> Cursor skill：`~/MyNotes/.cursor/skills/cursor-extension-patches/SKILL.md`  
 > 约定：任何改动先改本仓库，再 `./scripts/apply-all.sh` 同步到 `~/.cursor/extensions/`，然后 commit/push。
 
 ## 盘点结论（2026-07-17）
