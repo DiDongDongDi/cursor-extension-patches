@@ -11,7 +11,7 @@
 
 | 扩展 ID                                     | 类型        | 改动摘要                                                              |
 | ------------------------------------------- | ----------- | --------------------------------------------------------------------- |
-| `shd101wyy.markdown-preview-enhanced`       | 上游 + 补丁 | 灯箱缩放/拖拽、API proxy、双击跳原文、`XBa` 打开编辑器、vue.diff 配色 |
+| `shd101wyy.markdown-preview-enhanced`       | 上游 + 补丁 | 灯箱缩放/拖拽、API proxy、双击跳原文、`XBa` 打开编辑器、vue.diff 配色、已有预览再按快捷键聚焦 |
 | `gwanjun.vscode-markdown-preview-advance`   | 上游 + 补丁 | `media/mermaid.js`：避免与 Mermaid 插件二次渲染                       |
 | `barnim.markdown-code-copy-button`          | 上游 + 补丁 | `media/main.js`：跳过 Mermaid 代码块                                  |
 | `kody-local.markdown-preview-checkbox-sync` | **自研**    | 内置预览 checkbox 点击写回源文件                                      |

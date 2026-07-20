@@ -9,11 +9,41 @@ PROXY_MARKER = "vscode-api-proxy.js"
 LIGHTBOX_MARKER = 'media","lightbox.js"'
 DBLCLICK_MARKER = 'X("revealLine",[n.current,Ce])'
 XBA_OPEN = "openTextDocument(t)"
+# openPreviewToTheSide: jump focus to already-open preview (Opt/Alt+Cmd+V)
+FOCUS_EXISTING_MARKER = ".reveal(void 0,!1),await "
+OPEN_PREVIEW_SIDE_OLD = (
+    "async function n(fe){let Le=xt.window.activeTextEditor;if(Le){fe||(fe=Le.document.uri);"
+    "try{await(await r(fe)).initPreview({sourceUri:fe,document:Le.document,cursorLine:XQe(Le),"
+    "viewOptions:{viewColumn:xt.ViewColumn.Beside,preserveFocus:!0}})}"
+    'catch(Ye){console.error("[MPE] openPreviewToTheSide failed:",Ye),'
+    "xt.window.showErrorMessage(`MPE Preview failed: ${Ye instanceof Error?Ye.message:String(Ye)}`)}}}"
+)
+OPEN_PREVIEW_SIDE_NEW = (
+    "async function n(fe){let Le=xt.window.activeTextEditor;if(Le){fe||(fe=Le.document.uri);"
+    "try{let pA=await r(fe),dA=pA.getPreviews(fe);dA&&dA.length>0&&dA[0].reveal(void 0,!1),"
+    "await pA.initPreview({sourceUri:fe,document:Le.document,cursorLine:XQe(Le),"
+    "viewOptions:{viewColumn:xt.ViewColumn.Beside,preserveFocus:!0}})}"
+    'catch(Ye){console.error("[MPE] openPreviewToTheSide failed:",Ye),'
+    "xt.window.showErrorMessage(`MPE Preview failed: ${Ye instanceof Error?Ye.message:String(Ye)}`)}}}"
+)
 
 
 def patch_extension_js(path: Path) -> None:
     text = path.read_text(errors="ignore")
     changed = False
+
+    if FOCUS_EXISTING_MARKER not in text:
+        if OPEN_PREVIEW_SIDE_OLD in text:
+            text = text.replace(OPEN_PREVIEW_SIDE_OLD, OPEN_PREVIEW_SIDE_NEW, 1)
+            changed = True
+            print("patched: openPreviewToTheSide focuses existing preview")
+        else:
+            print(
+                "WARN: openPreviewToTheSide pattern not found; "
+                "manual focus-existing-preview patch needed"
+            )
+    else:
+        print("ok: openPreviewToTheSide already focuses existing preview")
 
     if PROXY_MARKER not in text:
         # Insert proxy+lightbox injection before generateHTMLTemplateForPreview call site.
