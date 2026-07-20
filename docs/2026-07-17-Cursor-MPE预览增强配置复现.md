@@ -22,7 +22,7 @@
 | Esc 只关灯箱、不切目录                   | `media/lightbox.js`                              | **是**                   |
 | 双击预览跳原文（编辑器不可见时也能打开） | `preview.js` + `extension.js` 的 `XBa`           | **是**                   |
 | 关闭双向滚动                             | settings `scrollSync: false`                     | 否                       |
-| 标题蓝色加粗 + 自动编号                  | `.crossnote/style.less`                          | 否                       |
+| 标题蓝色加粗（无自动编号）               | `.crossnote/style.less`                          | 否                       |
 | ` ```diff ` 红绿配色                     | `style.less` + `head.html`（+ 可选改 `vue.css`） | style 否；vue.css **是** |
 | 快捷键 `Cmd+Option+V`                    | `keybindings.json`                               | 否                       |
 
@@ -124,7 +124,7 @@ cursor --install-extension shd101wyy.markdown-preview-enhanced
 要点：
 
 - 选择器必须包在 `.markdown-preview.markdown-preview { ... }` 内。
-- 标题：`#0969da`、加粗；CSS counter 自动编号到 h6。
+- 标题：`#0969da`、加粗；**不**用 CSS counter 自动编号（已去掉 `::before` 序号）。
 - diff：Prism 实际类名是 `deleted-sign` / `inserted-sign`（alias 才有 `deleted`/`inserted`）；`vue` 主题默认只有删除线/虚线下划线。
 
 当前完整文件见：`~/MyNotes/.crossnote/style.less`。

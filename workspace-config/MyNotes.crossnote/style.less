@@ -2,8 +2,6 @@
 /*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
 
 .markdown-preview.markdown-preview {
-    counter-reset: heading-1;
-
     h1,
     h2,
     h3,
@@ -17,64 +15,6 @@
             color: inherit;
             font-weight: inherit;
         }
-    }
-
-    h1 {
-        counter-increment: heading-1;
-        counter-reset: heading-2;
-    }
-
-    h2 {
-        counter-increment: heading-2;
-        counter-reset: heading-3;
-    }
-
-    h3 {
-        counter-increment: heading-3;
-        counter-reset: heading-4;
-    }
-
-    h4 {
-        counter-increment: heading-4;
-        counter-reset: heading-5;
-    }
-
-    h5 {
-        counter-increment: heading-5;
-        counter-reset: heading-6;
-    }
-
-    h6 {
-        counter-increment: heading-6;
-    }
-
-    h1::before {
-        content: counter(heading-1) ". ";
-    }
-
-    h2::before {
-        content: counter(heading-1) "." counter(heading-2) " ";
-    }
-
-    h3::before {
-        content: counter(heading-1) "." counter(heading-2) "."
-            counter(heading-3) " ";
-    }
-
-    h4::before {
-        content: counter(heading-1) "." counter(heading-2) "."
-            counter(heading-3) "." counter(heading-4) " ";
-    }
-
-    h5::before {
-        content: counter(heading-1) "." counter(heading-2) "."
-            counter(heading-3) "." counter(heading-4) "." counter(heading-5) " ";
-    }
-
-    h6::before {
-        content: counter(heading-1) "." counter(heading-2) "."
-            counter(heading-3) "." counter(heading-4) "." counter(heading-5) "."
-            counter(heading-6) " ";
     }
 
     /* diff：Prism 实际类名是 deleted-sign / inserted-sign（alias 含 deleted/inserted） */
