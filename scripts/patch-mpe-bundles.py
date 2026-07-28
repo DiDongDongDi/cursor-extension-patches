@@ -7,7 +7,9 @@ from pathlib import Path
 
 PROXY_MARKER = "vscode-api-proxy.js"
 LIGHTBOX_MARKER = 'media","lightbox.js"'
+CODE_COPY_MARKER = 'media","code-copy.js"'
 DBLCLICK_MARKER = 'X("revealLine",[n.current,Ce])'
+DISABLE_WHEEL_ZOOM_MARKER = "mpe-disable-wheel-zoom"
 XBA_OPEN = "openTextDocument(t)"
 # openPreviewToTheSide: jump focus to already-open preview (Opt/Alt+Cmd+V)
 FOCUS_EXISTING_MARKER = ".reveal(void 0,!1),await "
@@ -87,6 +89,32 @@ def patch_extension_js(path: Path) -> None:
     else:
         print("ok: proxy already injected")
 
+    if CODE_COPY_MARKER not in text:
+        injected = (
+            '{let mpeCcCss=o.webview.asWebviewUri(ps.Uri.joinPath(this.context.extensionUri,"media","code-copy.css")),'
+            'mpeCcJs=o.webview.asWebviewUri(ps.Uri.joinPath(this.context.extensionUri,"media","code-copy.js"));'
+            'E+=`<link rel="stylesheet" href="${mpeCcCss}"><script defer src="${mpeCcJs}"></script>`}'
+        )
+        # Append right after the lightbox injection block (added by the proxy patch above)
+        anchors = [
+            'E+=`<link rel="stylesheet" href="${m}"><script defer src="${Q}"></script>`}',
+            'E=`<script src="${ie}"></script>`}',
+        ]
+        for anchor in anchors:
+            idx = text.find(anchor)
+            if idx >= 0:
+                insert_at = idx + len(anchor)
+                text = text[:insert_at] + injected + text[insert_at:]
+                changed = True
+                print("patched: code-copy button inject")
+                break
+        else:
+            print(
+                "WARN: cannot find head-inject anchor; manual code-copy inject needed"
+            )
+    else:
+        print("ok: code-copy button already injected")
+
     # Ensure XBa opens document when editor not visible
     i = text.find("async function XBa")
     if i >= 0:
@@ -123,36 +151,67 @@ def patch_extension_js(path: Path) -> None:
 
 def patch_preview_js(path: Path) -> None:
     text = path.read_text(errors="ignore")
+    changed = False
+
     if DBLCLICK_MARKER in text:
         print("ok: preview dblclick reveal already present")
-        return
+    else:
+        # Insert a useEffect after a known keydown effect if possible
+        hook = (
+            '(0,Le.useEffect)(()=>{let F1=e1=>{if(e1.target&&e1.target.closest&&e1.target.closest(".mpe-lightbox-overlay"))return;'
+            'let N1=e1.target,Ce=null;for(;N1&&N1!==document.body;){let pA=N1.getAttribute&&N1.getAttribute("data-source-line");'
+            "if(pA){let dA=parseInt(pA,10);if(!isNaN(dA)){Ce=dA-1;break}}N1=N1.parentElement}"
+            'if(Ce==null)return;e1.preventDefault(),e1.stopPropagation(),X("revealLine",[n.current,Ce])};'
+            'return document.addEventListener("dblclick",F1,!0),()=>{document.removeEventListener("dblclick",F1,!0)}},[X]),'
+        )
+        text, inserted = insert_after_keydown_effect(text, hook)
+        if inserted:
+            changed = True
+            print("patched: preview dblclick reveal")
 
-    # Insert a useEffect after a known keydown effect if possible
-    hook = (
-        '(0,Le.useEffect)(()=>{let F1=e1=>{if(e1.target&&e1.target.closest&&e1.target.closest(".mpe-lightbox-overlay"))return;'
-        'let N1=e1.target,Ce=null;for(;N1&&N1!==document.body;){let pA=N1.getAttribute&&N1.getAttribute("data-source-line");'
-        "if(pA){let dA=parseInt(pA,10);if(!isNaN(dA)){Ce=dA-1;break}}N1=N1.parentElement}"
-        'if(Ce==null)return;e1.preventDefault(),e1.stopPropagation(),X("revealLine",[n.current,Ce])};'
-        'return document.addEventListener("dblclick",F1,!0),()=>{document.removeEventListener("dblclick",F1,!0)}},[X]),'
-    )
+    if DISABLE_WHEEL_ZOOM_MARKER in text:
+        print("ok: Cmd/Ctrl+wheel zoom already disabled")
+    else:
+        hook = (
+            "(0,Le.useEffect)(()=>{let W1=e1=>{if(!(e1.ctrlKey||e1.metaKey))return;"
+            "e1.preventDefault(),e1.stopImmediatePropagation()};"
+            'return document.addEventListener("wheel",W1,{passive:!1,capture:!0}),'
+            'document.documentElement.dataset.mpeDisableWheelZoom="mpe-disable-wheel-zoom",'
+            '()=>{document.removeEventListener("wheel",W1,{capture:!0})}},[]),'
+        )
+        text, inserted = insert_after_keydown_effect(text, hook)
+        if inserted:
+            changed = True
+            print("patched: disabled Cmd/Ctrl+wheel preview zoom")
 
+    if changed:
+        path.write_text(text)
+        print(f"wrote {path}")
+
+
+def insert_after_keydown_effect(text: str, hook: str) -> tuple[str, bool]:
     anchor = 'document.addEventListener("keydown",Jt)'
     idx = text.find(anchor)
     if idx < 0:
         print(
-            "WARN: cannot find keydown anchor for dblclick inject; manual patch needed"
+            "WARN: cannot find keydown anchor for preview hook inject; manual patch needed"
         )
-        return
+        return text, False
 
-    # Insert after the keydown useEffect ends: look for `},[Jt]),` following anchor
-    end = text.find("},[Jt]),", idx)
+    # Insert after the keydown useEffect ends. Upstream 0.8.30 uses `}),[Jt]),`.
+    endings = ("}),[Jt]),", "},[Jt]),")
+    end = -1
+    ending = ""
+    for candidate in endings:
+        end = text.find(candidate, idx)
+        if end >= 0:
+            ending = candidate
+            break
     if end < 0:
         print("WARN: cannot find end of keydown effect")
-        return
-    insert_at = end + len("},[Jt]),")
-    text = text[:insert_at] + hook + text[insert_at:]
-    path.write_text(text)
-    print(f"patched: preview dblclick -> {path}")
+        return text, False
+    insert_at = end + len(ending)
+    return text[:insert_at] + hook + text[insert_at:], True
 
 
 def main() -> int:

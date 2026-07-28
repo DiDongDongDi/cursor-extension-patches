@@ -33,7 +33,8 @@ echo "-- $ID -> $DST"
 case "$NAME" in
   shd101wyy.markdown-preview-enhanced)
     mkdir -p "$DST/media" "$DST/crossnote/styles/prism_theme"
-    cp "$SRC/media/lightbox.js" "$SRC/media/lightbox.css" "$SRC/media/vscode-api-proxy.js" "$DST/media/"
+    cp "$SRC/media/lightbox.js" "$SRC/media/lightbox.css" "$SRC/media/vscode-api-proxy.js" \
+       "$SRC/media/code-copy.js" "$SRC/media/code-copy.css" "$DST/media/"
     cp "$SRC/crossnote/styles/prism_theme/vue.css" "$DST/crossnote/styles/prism_theme/vue.css"
     python3 "$ROOT/scripts/patch-mpe-bundles.py" "$DST"
     ;;

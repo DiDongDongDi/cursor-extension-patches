@@ -9,12 +9,12 @@
 
 ## 盘点结论（2026-07-17）
 
-| 扩展 ID                                     | 类型        | 改动摘要                                                              |
-| ------------------------------------------- | ----------- | --------------------------------------------------------------------- |
-| `shd101wyy.markdown-preview-enhanced`       | 上游 + 补丁 | 灯箱缩放/拖拽、API proxy、双击跳原文、`XBa` 打开编辑器、vue.diff 配色、已有预览再按快捷键聚焦 |
-| `gwanjun.vscode-markdown-preview-advance`   | 上游 + 补丁 | `media/mermaid.js`：避免与 Mermaid 插件二次渲染                       |
-| `barnim.markdown-code-copy-button`          | 上游 + 补丁 | `media/main.js`：跳过 Mermaid 代码块                                  |
-| `kody-local.markdown-preview-checkbox-sync` | **自研**    | 内置预览 checkbox 点击写回源文件                                      |
+| 扩展 ID                                     | 类型        | 改动摘要                                                                                                                              |
+| ------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `shd101wyy.markdown-preview-enhanced`       | 上游 + 补丁 | 灯箱缩放/拖拽、API proxy、双击跳原文、`XBa` 打开编辑器、vue.diff 配色、已有预览再按快捷键聚焦、禁用 Cmd/Ctrl+滚轮缩放、代码块复制按钮 |
+| `gwanjun.vscode-markdown-preview-advance`   | 上游 + 补丁 | `media/mermaid.js`：避免与 Mermaid 插件二次渲染                                                                                       |
+| `barnim.markdown-code-copy-button`          | 上游 + 补丁 | `media/main.js`：跳过 Mermaid 代码块                                                                                                  |
+| `kody-local.markdown-preview-checkbox-sync` | **自研**    | 内置预览 checkbox 点击写回源文件                                                                                                      |
 
 其余已装扩展：**未发现本地改动**（仅 marketplace 原版）。
 
@@ -58,5 +58,6 @@ cd ~/cursor-extension-patches
 ## 注意
 
 - **不要**把整份上游扩展（含 13MB `extension.js`）提交进仓库；只存补丁文件与可重复的 apply 脚本。
+- MPE 预览的代码块复制按钮来自 `media/code-copy.{js,css}`：`barnim.markdown-code-copy-button` 走 `markdown.previewScripts`，只对 VS Code 内置预览生效；MPE 自带的只有块级 `.floating-action`（复制的是带围栏的 markdown 源码），且已被 `.crossnote` 样式隐藏。
 - 升级 MPE / Advance / Code Copy 后务必重新 `apply-all`，并核对 `UPSTREAM_VERSION`。
 - 远端仓库：https://github.com/DiDongDongDi/cursor-extension-patches（public）
