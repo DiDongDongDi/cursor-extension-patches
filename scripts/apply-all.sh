@@ -12,6 +12,7 @@ echo "    extensions: $EXT_HOME"
 "$ROOT/scripts/apply-one.sh" gwanjun.vscode-markdown-preview-advance
 "$ROOT/scripts/apply-one.sh" barnim.markdown-code-copy-button
 "$ROOT/scripts/apply-one.sh" kody-local.markdown-preview-checkbox-sync
+"$ROOT/scripts/apply-one.sh" kody-local.filtered-editor-switcher
 
 echo
 echo "Done. Run in Cursor: Developer: Reload Window"

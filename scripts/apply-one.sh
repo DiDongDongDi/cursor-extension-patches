@@ -44,7 +44,7 @@ case "$NAME" in
   barnim.markdown-code-copy-button)
     cp "$SRC/media/main.js" "$DST/media/main.js"
     ;;
-  kody-local.markdown-preview-checkbox-sync)
+  kody-local.markdown-preview-checkbox-sync|kody-local.filtered-editor-switcher)
     # full replace of our extension
     mkdir -p "$DST"
     rsync -a --delete \

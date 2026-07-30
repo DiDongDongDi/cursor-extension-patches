@@ -1,0 +1,104 @@
+{
+    "name": "filtered-editor-switcher",
+    "displayName": "Filtered Editor Switcher (MyNotes)",
+    "description": "Ctrl+Tab / Ctrl+Shift+Tab only cycle text/notebook editors; skip MPE preview and Cursor chat webviews.",
+    "version": "0.1.0",
+    "publisher": "kody-local",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.84.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "filteredEditorSwitcher.openPrevious",
+                "title": "Filtered Editors: Open Previous (skip preview/chat)"
+            },
+            {
+                "command": "filteredEditorSwitcher.openNext",
+                "title": "Filtered Editors: Open Next (skip preview/chat)"
+            },
+            {
+                "command": "filteredEditorSwitcher.navigateNext",
+                "title": "Filtered Editors: Navigate Next In Picker"
+            },
+            {
+                "command": "filteredEditorSwitcher.navigatePrevious",
+                "title": "Filtered Editors: Navigate Previous In Picker"
+            }
+        ],
+        "keybindings": [
+            {
+                "key": "ctrl+tab",
+                "command": "filteredEditorSwitcher.openPrevious",
+                "when": "!filteredEditorSwitcherOpen"
+            },
+            {
+                "key": "ctrl+shift+tab",
+                "command": "filteredEditorSwitcher.openNext",
+                "when": "!filteredEditorSwitcherOpen"
+            },
+            {
+                "key": "ctrl+tab",
+                "command": "filteredEditorSwitcher.navigateNext",
+                "when": "filteredEditorSwitcherOpen"
+            },
+            {
+                "key": "ctrl+shift+tab",
+                "command": "filteredEditorSwitcher.navigatePrevious",
+                "when": "filteredEditorSwitcherOpen"
+            }
+        ],
+        "configuration": {
+            "title": "Filtered Editor Switcher",
+            "properties": {
+                "filteredEditorSwitcher.excludeViewTypeSubstrings": {
+                    "type": "array",
+                    "default": [
+                        "markdown-preview-enhanced",
+                        "aichat",
+                        "composer",
+                        "cursor",
+                        "anysphere"
+                    ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Skip TabInputWebview / TabInputCustom whose viewType contains any of these (case-insensitive)."
+                },
+                "filteredEditorSwitcher.excludeUriSchemePrefixes": {
+                    "type": "array",
+                    "default": [
+                        "vscode-webview",
+                        "webview",
+                        "output",
+                        "extension",
+                        "cursor",
+                        "anysphere"
+                    ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Skip text tabs whose URI scheme starts with any of these."
+                },
+                "filteredEditorSwitcher.excludeLabelPrefixes": {
+                    "type": "array",
+                    "default": [
+                        "Preview "
+                    ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Skip tabs whose label starts with any of these."
+                }
+            }
+        }
+    }
+}

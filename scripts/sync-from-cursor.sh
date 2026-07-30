@@ -54,7 +54,7 @@ PY
     barnim.markdown-code-copy-button)
       cp "$dst/media/main.js" "$ROOT/extensions/$name/media/"
       ;;
-    kody-local.markdown-preview-checkbox-sync)
+    kody-local.markdown-preview-checkbox-sync|kody-local.filtered-editor-switcher)
       rsync -a --delete \
         --exclude EXTENSION_ID --exclude VERSION --exclude UPSTREAM_VERSION \
         "$dst"/ "$ROOT/extensions/$name"/
@@ -69,6 +69,7 @@ pull shd101wyy.markdown-preview-enhanced
 pull gwanjun.vscode-markdown-preview-advance
 pull barnim.markdown-code-copy-button
 pull kody-local.markdown-preview-checkbox-sync
+pull kody-local.filtered-editor-switcher
 
 # optional: sync MyNotes .crossnote
 if [[ -d "$HOME/MyNotes/.crossnote" ]]; then

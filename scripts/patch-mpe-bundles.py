@@ -29,6 +29,25 @@ OPEN_PREVIEW_SIDE_NEW = (
     "xt.window.showErrorMessage(`MPE Preview failed: ${Ye instanceof Error?Ye.message:String(Ye)}`)}}}"
 )
 
+# Close matching MPE preview when the source markdown document is closed
+CLOSE_PREVIEW_WITH_DOC_MARKER = "[MPE] auto-close preview on editor close"
+CLOSE_PREVIEW_WITH_DOC_ANCHOR = (
+    "}}})),e.subscriptions.push(xt.window.onDidChangeActiveColorTheme("
+)
+CLOSE_PREVIEW_WITH_DOC_INSERT = (
+    "}}})),e.subscriptions.push(xt.workspace.onDidCloseTextDocument(async fe=>{"
+    "if(!jh(fe))return;"
+    "try{let Ve=fe.uri,eA=await r(Ve);"
+    "if(m8()===Wp.SinglePreview){"
+    "if(!eA.previewHasTheSameSingleSourceUri(Ve))return;"
+    "let uA=eA.getPreviews(Ve);uA&&uA.forEach(h=>h.dispose())"
+    "}else if(eA.isPreviewOn(Ve)){"
+    "let uA=eA.getPreviews(Ve);uA&&uA.forEach(h=>h.dispose())"
+    "}}"
+    f'catch(Ye){{console.warn("{CLOSE_PREVIEW_WITH_DOC_MARKER} failed:",Ye)}}'
+    "})),e.subscriptions.push(xt.window.onDidChangeActiveColorTheme("
+)
+
 
 def patch_extension_js(path: Path) -> None:
     text = path.read_text(errors="ignore")
@@ -46,6 +65,22 @@ def patch_extension_js(path: Path) -> None:
             )
     else:
         print("ok: openPreviewToTheSide already focuses existing preview")
+
+    if CLOSE_PREVIEW_WITH_DOC_MARKER not in text:
+        # Anchor sits right after automaticallyShowPreviewOfMarkdownBeingEdited listener
+        if CLOSE_PREVIEW_WITH_DOC_ANCHOR in text:
+            text = text.replace(
+                CLOSE_PREVIEW_WITH_DOC_ANCHOR, CLOSE_PREVIEW_WITH_DOC_INSERT, 1
+            )
+            changed = True
+            print("patched: close MPE preview when source markdown document closes")
+        else:
+            print(
+                "WARN: close-preview-with-doc anchor not found; "
+                "manual close-on-editor-close patch needed"
+            )
+    else:
+        print("ok: close preview on source document close already present")
 
     if PROXY_MARKER not in text:
         # Insert proxy+lightbox injection before generateHTMLTemplateForPreview call site.
