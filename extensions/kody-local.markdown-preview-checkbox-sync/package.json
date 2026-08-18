@@ -1,8 +1,8 @@
 {
     "name": "markdown-preview-checkbox-sync",
     "displayName": "Markdown Preview Checkbox Sync (MyNotes)",
-    "description": "Sync built-in markdown preview checkbox clicks back to source files.",
-    "version": "0.1.2",
+    "description": "Sync built-in markdown preview checkbox clicks back to source files, and convert selected lines to task-list checkboxes from the editor context menu.",
+    "version": "0.1.3",
     "publisher": "kody-local",
     "license": "MIT",
     "engines": {
@@ -14,7 +14,9 @@
     "activationEvents": [
         "onStartupFinished",
         "onUri",
-        "onCommand:markdownPreviewCheckboxSync.toggle"
+        "onCommand:markdownPreviewCheckboxSync.toggle",
+        "onCommand:markdownPreviewCheckboxSync.convertToCheckbox",
+        "onCommand:markdownPreviewCheckboxSync.removeCheckbox"
     ],
     "main": "./extension.js",
     "contributes": {
@@ -22,8 +24,32 @@
             {
                 "command": "markdownPreviewCheckboxSync.toggle",
                 "title": "Toggle Markdown Preview Checkbox"
+            },
+            {
+                "command": "markdownPreviewCheckboxSync.convertToCheckbox",
+                "title": "转为 Checkbox",
+                "category": "Markdown"
+            },
+            {
+                "command": "markdownPreviewCheckboxSync.removeCheckbox",
+                "title": "取消 Checkbox",
+                "category": "Markdown"
             }
         ],
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "markdownPreviewCheckboxSync.convertToCheckbox",
+                    "when": "editorLangId =~ /^markdown$|^rmd$|^quarto$/ && editorTextFocus && !editorReadonly",
+                    "group": "1_modification@20"
+                },
+                {
+                    "command": "markdownPreviewCheckboxSync.removeCheckbox",
+                    "when": "editorLangId =~ /^markdown$|^rmd$|^quarto$/ && editorTextFocus && !editorReadonly",
+                    "group": "1_modification@21"
+                }
+            ]
+        },
         "markdown.previewScripts": [
             "./preview/checkbox-sync.js"
         ]

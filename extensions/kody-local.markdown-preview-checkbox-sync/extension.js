@@ -1,4 +1,5 @@
 const vscode = require("vscode");
+const { toCheckboxLine, stripCheckboxLine } = require("./checkbox-edit");
 
 const OUTPUT_CHANNEL = "Markdown Preview Checkbox Sync";
 
@@ -55,7 +56,59 @@ function activate(context) {
                 );
             },
         ),
+        vscode.commands.registerCommand(
+            "markdownPreviewCheckboxSync.convertToCheckbox",
+            () => rewriteSelectedLines(toCheckboxLine),
+        ),
+        vscode.commands.registerCommand(
+            "markdownPreviewCheckboxSync.removeCheckbox",
+            () => rewriteSelectedLines(stripCheckboxLine),
+        ),
     );
+}
+
+/**
+ * @param {(text: string) => string} transform
+ */
+async function rewriteSelectedLines(transform) {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        return;
+    }
+
+    const lineNumbers = collectTouchedLines(editor);
+    await editor.edit((editBuilder) => {
+        for (const lineNumber of lineNumbers) {
+            const line = editor.document.lineAt(lineNumber);
+            const next = transform(line.text);
+            if (next !== line.text) {
+                editBuilder.replace(line.range, next);
+            }
+        }
+    });
+}
+
+/**
+ * @param {vscode.TextEditor} editor
+ * @returns {number[]}
+ */
+function collectTouchedLines(editor) {
+    const lineSet = new Set();
+    for (const selection of editor.selections) {
+        const start = selection.start.line;
+        let end = selection.end.line;
+        if (
+            !selection.isEmpty &&
+            selection.end.character === 0 &&
+            end > start
+        ) {
+            end -= 1;
+        }
+        for (let i = start; i <= end; i++) {
+            lineSet.add(i);
+        }
+    }
+    return [...lineSet].sort((a, b) => a - b);
 }
 
 /**
