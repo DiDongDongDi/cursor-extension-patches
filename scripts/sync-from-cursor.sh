@@ -65,6 +65,9 @@ PY
     barnim.markdown-code-copy-button)
       cp "$dst/media/main.js" "$ROOT/extensions/$name/media/"
       ;;
+    mushan.vscode-paste-image)
+      cp "$dst/res/mac.applescript" "$ROOT/extensions/$name/res/"
+      ;;
     kody-local.markdown-preview-checkbox-sync|kody-local.filtered-editor-switcher)
       rsync -a --delete \
         --exclude EXTENSION_ID --exclude VERSION --exclude UPSTREAM_VERSION \
@@ -79,6 +82,7 @@ PY
 pull shd101wyy.markdown-preview-enhanced
 pull gwanjun.vscode-markdown-preview-advance
 pull barnim.markdown-code-copy-button
+pull mushan.vscode-paste-image
 pull kody-local.markdown-preview-checkbox-sync
 pull kody-local.filtered-editor-switcher
 

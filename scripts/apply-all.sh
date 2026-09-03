@@ -11,6 +11,7 @@ echo "    extensions: $EXT_HOME"
 "$ROOT/scripts/apply-one.sh" shd101wyy.markdown-preview-enhanced
 "$ROOT/scripts/apply-one.sh" gwanjun.vscode-markdown-preview-advance
 "$ROOT/scripts/apply-one.sh" barnim.markdown-code-copy-button
+"$ROOT/scripts/apply-one.sh" mushan.vscode-paste-image
 "$ROOT/scripts/apply-one.sh" kody-local.markdown-preview-checkbox-sync
 "$ROOT/scripts/apply-one.sh" kody-local.filtered-editor-switcher
 

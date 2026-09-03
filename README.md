@@ -9,13 +9,14 @@
 
 ## 盘点结论（2026-07-17）
 
-| 扩展 ID                                     | 类型        | 改动摘要                                                                                                                                                                |
-| ------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 扩展 ID                                     | 类型        | 改动摘要                                                                                                                                                                                                 |
+| ------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `shd101wyy.markdown-preview-enhanced`       | 上游 + 补丁 | 灯箱缩放/拖拽、API proxy、双击跳原文、`zsu`/`XBa` 打开编辑器、vue.diff 配色、已有预览再按快捷键聚焦、禁用 Cmd/Ctrl+滚轮缩放、代码块复制按钮、关闭 md 源文件时同步关闭对应预览（当前对齐上游 **0.8.32**） |
-| `gwanjun.vscode-markdown-preview-advance`   | 上游 + 补丁 | `media/mermaid.js`：避免与 Mermaid 插件二次渲染                                                                                                                         |
-| `barnim.markdown-code-copy-button`          | 上游 + 补丁 | `media/main.js`：跳过 Mermaid 代码块                                                                                                                                    |
-| `kody-local.markdown-preview-checkbox-sync` | **自研**    | 内置预览 checkbox 点击写回源文件；Markdown 编辑器右键「转为 / 取消 Checkbox」                                                                                           |
-| `kody-local.filtered-editor-switcher`       | **自研**    | Ctrl+Tab 只切文本/笔记本编辑器，跳过 MPE Preview 与 Cursor 聊天 webview                                                                                                 |
+| `gwanjun.vscode-markdown-preview-advance`   | 上游 + 补丁 | `media/mermaid.js`：避免与 Mermaid 插件二次渲染                                                                                                                                                          |
+| `barnim.markdown-code-copy-button`          | 上游 + 补丁 | `media/main.js`：跳过 Mermaid 代码块                                                                                                                                                                     |
+| `mushan.vscode-paste-image`                 | 上游 + 补丁 | `res/mac.applescript`：优先 `pngpaste`（macOS 剪贴板截图多为 TIFF，原版只认 PNGf 会误报无图）                                                                                                              |
+| `kody-local.markdown-preview-checkbox-sync` | **自研**    | 内置预览 checkbox 点击写回源文件；Markdown 编辑器右键「转为 / 取消 Checkbox」                                                                                                                            |
+| `kody-local.filtered-editor-switcher`       | **自研**    | Ctrl+Tab 只切文本/笔记本编辑器，跳过 MPE Preview 与 Cursor 聊天 webview                                                                                                                                  |
 
 其余已装扩展：**未发现本地改动**（仅 marketplace 原版）。
 

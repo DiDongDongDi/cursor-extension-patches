@@ -44,6 +44,9 @@ case "$NAME" in
   barnim.markdown-code-copy-button)
     cp "$SRC/media/main.js" "$DST/media/main.js"
     ;;
+  mushan.vscode-paste-image)
+    cp "$SRC/res/mac.applescript" "$DST/res/mac.applescript"
+    ;;
   kody-local.markdown-preview-checkbox-sync|kody-local.filtered-editor-switcher)
     # full replace of our extension
     mkdir -p "$DST"
