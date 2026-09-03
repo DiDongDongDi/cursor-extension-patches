@@ -1,5 +1,8 @@
--- Prefer pngpaste: macOS screenshots on clipboard are often TIFF, not «class PNGf».
--- Original mushan script only accepted PNGf → "There is not an image in the clipboard."
+-- Save clipboard image for Paste Image on macOS.
+-- 1) Prefer pngpaste (handles TIFF screenshots; raw PNGf-only check often fails).
+-- 2) Fall back to writing «class PNGf» bytes.
+-- 3) Always strip color-management tags (esp. bogus gAMA≈2.2 from browser clipboard).
+--    Electron/Chromium (MPE, Obsidian, etc.) honors gAMA and washes dark screenshots.
 property fileTypes : {{«class PNGf», ".png"}}
 
 on run argv
@@ -8,6 +11,7 @@ on run argv
 	end if
 	
 	set imagePath to (item 1 of argv)
+	set saved to false
 	
 	set pngpasteBin to ""
 	try
@@ -17,30 +21,38 @@ on run argv
 	if pngpasteBin is not "" then
 		try
 			do shell script (quoted form of pngpasteBin) & " " & (quoted form of imagePath)
-			return imagePath
-		on error
-			return "no image"
+			set saved to true
 		end try
 	end if
 	
-	set theType to getType()
-	
-	if theType is not missing value then
+	if saved is false then
+		set theType to getType()
+		if theType is missing value then
+			return "no image"
+		end if
 		try
 			set myFile to (open for access imagePath with write permission)
 			set eof myFile to 0
 			write (the clipboard as (first item of theType)) to myFile
 			close access myFile
-			return (POSIX path of imagePath)
+			set saved to true
 		on error
 			try
 				close access myFile
 			end try
 			return ""
 		end try
-	else
-		return "no image"
 	end if
+	
+	if saved is true then
+		-- Drop gAMA/iCCP quirks so preview pixels match screenshot intent
+		try
+			do shell script "sips --deleteColorManagementProperties " & (quoted form of imagePath) & " >/dev/null 2>&1"
+		end try
+		return imagePath
+	end if
+	
+	return "no image"
 end run
 
 on getType()
