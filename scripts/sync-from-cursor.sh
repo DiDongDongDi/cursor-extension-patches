@@ -27,6 +27,7 @@ pull() {
   case "$name" in
     shd101wyy.markdown-preview-enhanced)
       cp "$dst/media/lightbox.js" "$dst/media/lightbox.css" "$dst/media/vscode-api-proxy.js" \
+        "$dst/media/code-copy.js" "$dst/media/code-copy.css" \
         "$ROOT/extensions/$name/media/"
       cp "$dst/crossnote/styles/prism_theme/vue.css" \
         "$ROOT/extensions/$name/crossnote/styles/prism_theme/"
@@ -36,15 +37,25 @@ from pathlib import Path
 mpe=Path("$dst")
 sn=Path("$ROOT/extensions/$name/snippets")
 ext=(mpe/"out/native/extension.js").read_text(errors="ignore")
-i=ext.find("async function XBa")
-j=ext.find("async function \$Ba", i)
+# 0.8.32: zsu; 0.8.30: XBa
+i=ext.find("async function zsu")
+j=ext.find("async function Wsu", i) if i>=0 else -1
+if i<0:
+    i=ext.find("async function XBa")
+    j=ext.find("async function \$Ba", i)
+(sn/"zsu.js").write_text(ext[i:j] if i>=0 and j>i else "")
+# keep legacy name for older notes
 (sn/"XBa.js").write_text(ext[i:j] if i>=0 and j>i else "")
 k=ext.find("vscode-api-proxy.js")
 (sn/"webview-inject-context.txt").write_text(ext[k-400:k+500] if k>=0 else "")
 prev=(mpe/"crossnote/webview/preview.js").read_text(errors="ignore")
-marker='X("revealLine",[n.current,Ce])'
-p=prev.find(marker)
-(sn/"preview-dblclick-context.txt").write_text(prev[p-600:p+250] if p>=0 else "NOT FOUND")
+marker=None
+for cand in ['N1("revealLine",[n.current,Ce])', 'X("revealLine",[n.current,Ce])']:
+    p=prev.find(cand)
+    if p>=0:
+        marker=cand
+        break
+(sn/"preview-dblclick-context.txt").write_text(prev[p-600:p+250] if marker else "NOT FOUND")
 print("snippets refreshed")
 PY
       ;;
