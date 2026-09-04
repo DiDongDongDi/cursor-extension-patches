@@ -11,10 +11,10 @@
 
 | 扩展 ID                                     | 类型        | 改动摘要                                                                                                                                                                                                 |
 | ------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shd101wyy.markdown-preview-enhanced`       | 上游 + 补丁 | 灯箱缩放/拖拽、API proxy、双击跳原文、`zsu`/`XBa` 打开编辑器、vue.diff 配色、已有预览再按快捷键聚焦、禁用 Cmd/Ctrl+滚轮缩放、代码块复制按钮、关闭 md 源文件时同步关闭对应预览（当前对齐上游 **0.8.32**） |
+| `shd101wyy.markdown-preview-enhanced`       | 上游 + 补丁 | 灯箱缩放/拖拽、API proxy、双击跳原文、`zsu`/`XBa` 打开编辑器、vue.diff 配色、已有预览再按快捷键聚焦、禁用 Cmd/Ctrl+滚轮缩放、代码块复制按钮、预览内建查找条（绕过 Cursor webview Find 失效）、关闭 md 源文件时同步关闭对应预览（当前对齐上游 **0.8.32**） |
 | `gwanjun.vscode-markdown-preview-advance`   | 上游 + 补丁 | `media/mermaid.js`：避免与 Mermaid 插件二次渲染                                                                                                                                                          |
 | `barnim.markdown-code-copy-button`          | 上游 + 补丁 | `media/main.js`：跳过 Mermaid 代码块                                                                                                                                                                     |
-| `mushan.vscode-paste-image`                 | 上游 + 补丁 | `res/mac.applescript`：优先 `pngpaste`；保存后去错误 `gAMA≈2.2`（Electron/MPE/Obsidian 会提亮发白）                                                                                                      |
+| `mushan.vscode-paste-image`                 | 上游 + 补丁 | `res/mac.applescript`：优先 `pngpaste`（macOS 剪贴板截图多为 TIFF，原版只认 PNGf 会误报无图）                                                                                                            |
 | `kody-local.markdown-preview-checkbox-sync` | **自研**    | 内置预览 checkbox 点击写回源文件；Markdown 编辑器右键「转为 / 取消 Checkbox」                                                                                                                            |
 | `kody-local.filtered-editor-switcher`       | **自研**    | Ctrl+Tab 只切文本/笔记本编辑器，跳过 MPE Preview 与 Cursor 聊天 webview                                                                                                                                  |
 
@@ -63,5 +63,6 @@ cd ~/cursor-extension-patches
 - **不要**把整份上游扩展（含 13MB `extension.js`）提交进仓库；只存补丁文件与可重复的 apply 脚本。
 - 改完后立刻 `git push origin main`（默认自动推 GitHub，不必再问；用户说「先别推」才跳过）。
 - MPE 预览的代码块复制按钮来自 `media/code-copy.{js,css}`：`barnim.markdown-code-copy-button` 走 `markdown.previewScripts`，只对 VS Code 内置预览生效；MPE 自带的只有块级 `.floating-action`（复制的是带围栏的 markdown 源码），且已被 `.crossnote` 样式隐藏。
+- MPE 预览内建查找（`media/preview-find.{js,css}`）：Cursor 的 webview 原生 Find（`enableFindWidget`）会出框但搜不到（[论坛已知问题](https://forum.cursor.com/t/searching-in-preview/160010)）；补丁拦截 Cmd/Ctrl+F，用 DOM 高亮条替代。验证：焦点在 Preview 内按 `Cmd+F`，应出现右上角查找条并能跳转命中。
 - 升级 MPE / Advance / Code Copy 后务必重新 `apply-all`，并核对 `UPSTREAM_VERSION`。
 - 远端仓库：https://github.com/DiDongDongDi/cursor-extension-patches（public）

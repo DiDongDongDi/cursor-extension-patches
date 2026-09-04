@@ -28,6 +28,7 @@ pull() {
     shd101wyy.markdown-preview-enhanced)
       cp "$dst/media/lightbox.js" "$dst/media/lightbox.css" "$dst/media/vscode-api-proxy.js" \
         "$dst/media/code-copy.js" "$dst/media/code-copy.css" \
+        "$dst/media/preview-find.js" "$dst/media/preview-find.css" \
         "$ROOT/extensions/$name/media/"
       cp "$dst/crossnote/styles/prism_theme/vue.css" \
         "$ROOT/extensions/$name/crossnote/styles/prism_theme/"

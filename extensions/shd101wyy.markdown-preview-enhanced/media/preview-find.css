@@ -1,0 +1,81 @@
+/* MPE 预览内建查找条（绕过 Cursor webview 原生 Find 失效） */
+.mpe-find-bar {
+  position: fixed;
+  top: 8px;
+  right: 12px;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, #252526);
+  color: var(--vscode-editorWidget-foreground, #cccccc);
+  border: 1px solid var(--vscode-editorWidget-border, #454545);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  font: 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.mpe-find-bar[hidden] {
+  display: none !important;
+}
+
+.mpe-find-bar input[type="search"] {
+  width: 180px;
+  min-width: 120px;
+  margin: 0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--vscode-input-border, #3c3c3c);
+  background: var(--vscode-input-background, #3c3c3c);
+  color: var(--vscode-input-foreground, #cccccc);
+  outline: none;
+}
+
+.mpe-find-bar input[type="search"]:focus {
+  border-color: var(--vscode-focusBorder, #007fd4);
+}
+
+.mpe-find-count {
+  min-width: 52px;
+  text-align: center;
+  opacity: 0.85;
+  user-select: none;
+}
+
+.mpe-find-bar button {
+  margin: 0;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.mpe-find-bar button:hover {
+  background: var(--vscode-toolbar-hoverBackground, rgba(255, 255, 255, 0.1));
+}
+
+.mpe-find-bar button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.mpe-find-case[aria-pressed="true"] {
+  background: var(--vscode-inputOption-activeBackground, rgba(0, 127, 212, 0.35));
+  border-color: var(--vscode-inputOption-activeBorder, #007fd4);
+}
+
+mark.mpe-find-hit {
+  background: var(--vscode-editor-findMatchHighlightBackground, rgba(234, 92, 0, 0.33));
+  color: inherit;
+  border-radius: 2px;
+  padding: 0;
+}
+
+mark.mpe-find-hit.mpe-find-current {
+  background: var(--vscode-editor-findMatchBackground, rgba(234, 186, 0, 0.55));
+  outline: 1px solid var(--vscode-editor-findMatchBorder, #f6c177);
+}

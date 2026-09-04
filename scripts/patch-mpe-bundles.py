@@ -12,6 +12,7 @@ from pathlib import Path
 PROXY_MARKER = "vscode-api-proxy.js"
 LIGHTBOX_MARKER = 'media","lightbox.js"'
 CODE_COPY_MARKER = 'media","code-copy.js"'
+PREVIEW_FIND_MARKER = 'media","preview-find.js"'
 # 0.8.32 postMessage helper is N1; 0.8.30 used X
 DBLCLICK_MARKER_NEW = 'N1("revealLine",[n.current,Ce])'
 DBLCLICK_MARKER_OLD = 'X("revealLine",[n.current,Ce])'
@@ -137,11 +138,15 @@ def patch_extension_js(path: Path) -> None:
         if CLOSE_PREVIEW_ANCHOR_832 in text:
             text = text.replace(CLOSE_PREVIEW_ANCHOR_832, CLOSE_PREVIEW_INSERT_832, 1)
             changed = True
-            print("patched: close MPE preview when source markdown document closes (0.8.32)")
+            print(
+                "patched: close MPE preview when source markdown document closes (0.8.32)"
+            )
         elif CLOSE_PREVIEW_ANCHOR_830 in text:
             text = text.replace(CLOSE_PREVIEW_ANCHOR_830, CLOSE_PREVIEW_INSERT_830, 1)
             changed = True
-            print("patched: close MPE preview when source markdown document closes (0.8.30)")
+            print(
+                "patched: close MPE preview when source markdown document closes (0.8.30)"
+            )
         else:
             print(
                 "WARN: close-preview-with-doc anchor not found; "
@@ -257,6 +262,57 @@ def patch_extension_js(path: Path) -> None:
     else:
         print("ok: code-copy button already injected")
 
+    if PREVIEW_FIND_MARKER not in text:
+        injected = None
+        anchors = [
+            (
+                'm+=`<link rel="stylesheet" href="${mpeCcCss}"><script defer src="${mpeCcJs}"></script>`}',
+                (
+                    '{let mpeFindCss=A.webview.asWebviewUri(Os.Uri.joinPath(this.context.extensionUri,"media","preview-find.css")),'
+                    'mpeFindJs=A.webview.asWebviewUri(Os.Uri.joinPath(this.context.extensionUri,"media","preview-find.js"));'
+                    'm+=`<link rel="stylesheet" href="${mpeFindCss}"><script defer src="${mpeFindJs}"></script>`}'
+                ),
+            ),
+            (
+                'E+=`<link rel="stylesheet" href="${mpeCcCss}"><script defer src="${mpeCcJs}"></script>`}',
+                (
+                    '{let mpeFindCss=o.webview.asWebviewUri(ps.Uri.joinPath(this.context.extensionUri,"media","preview-find.css")),'
+                    'mpeFindJs=o.webview.asWebviewUri(ps.Uri.joinPath(this.context.extensionUri,"media","preview-find.js"));'
+                    'E+=`<link rel="stylesheet" href="${mpeFindCss}"><script defer src="${mpeFindJs}"></script>`}'
+                ),
+            ),
+            (
+                'm+=`<link rel="stylesheet" href="${E}"><script defer src="${y}"></script>`}',
+                (
+                    '{let mpeFindCss=A.webview.asWebviewUri(Os.Uri.joinPath(this.context.extensionUri,"media","preview-find.css")),'
+                    'mpeFindJs=A.webview.asWebviewUri(Os.Uri.joinPath(this.context.extensionUri,"media","preview-find.js"));'
+                    'm+=`<link rel="stylesheet" href="${mpeFindCss}"><script defer src="${mpeFindJs}"></script>`}'
+                ),
+            ),
+            (
+                'E+=`<link rel="stylesheet" href="${m}"><script defer src="${Q}"></script>`}',
+                (
+                    '{let mpeFindCss=o.webview.asWebviewUri(ps.Uri.joinPath(this.context.extensionUri,"media","preview-find.css")),'
+                    'mpeFindJs=o.webview.asWebviewUri(ps.Uri.joinPath(this.context.extensionUri,"media","preview-find.js"));'
+                    'E+=`<link rel="stylesheet" href="${mpeFindCss}"><script defer src="${mpeFindJs}"></script>`}'
+                ),
+            ),
+        ]
+        for anchor, inj in anchors:
+            idx = text.find(anchor)
+            if idx >= 0:
+                insert_at = idx + len(anchor)
+                text = text[:insert_at] + inj + text[insert_at:]
+                changed = True
+                print("patched: preview-find inject")
+                break
+        else:
+            print(
+                "WARN: cannot find head-inject anchor; manual preview-find inject needed"
+            )
+    else:
+        print("ok: preview-find already injected")
+
     # revealLine: 0.8.32 zsu / 0.8.30 XBa
     if ZSU_OLD in text:
         text = text.replace(ZSU_OLD, ZSU_NEW, 1)
@@ -314,7 +370,7 @@ def patch_preview_js(path: Path) -> None:
         ns, helper, key_var = detect_preview_symbols(text)
         # walker 变量不要用 N1：0.8.32 的 postMessage helper 就叫 N1，会影子冲突
         hook = (
-            f"(0,{ns}.useEffect)(()=>{{let F1=e1=>{{if(e1.target&&e1.target.closest&&e1.target.closest(\".mpe-lightbox-overlay\"))return;"
+            f'(0,{ns}.useEffect)(()=>{{let F1=e1=>{{if(e1.target&&e1.target.closest&&e1.target.closest(".mpe-lightbox-overlay"))return;'
             f'let Te=e1.target,Ce=null;for(;Te&&Te!==document.body;){{let pA=Te.getAttribute&&Te.getAttribute("data-source-line");'
             f"if(pA){{let dA=parseInt(pA,10);if(!isNaN(dA)){{Ce=dA-1;break}}}}Te=Te.parentElement}}"
             f'if(Ce==null)return;e1.preventDefault(),e1.stopPropagation(),{helper}("revealLine",[n.current,Ce])}};'
@@ -334,7 +390,7 @@ def patch_preview_js(path: Path) -> None:
             f"e1.preventDefault(),e1.stopImmediatePropagation()}};"
             f'return document.addEventListener("wheel",W1,{{passive:!1,capture:!0}}),'
             f'document.documentElement.dataset.mpeDisableWheelZoom="mpe-disable-wheel-zoom",'
-            f"()=>{{document.removeEventListener(\"wheel\",W1,{{capture:!0}})}}}},[]),"
+            f'()=>{{document.removeEventListener("wheel",W1,{{capture:!0}})}}}},[]),'
         )
         text, inserted = insert_after_keydown_effect(text, hook, key_var)
         if inserted:
@@ -366,7 +422,7 @@ def detect_preview_symbols(text: str) -> tuple[str, str, str]:
 
     # postMessage helper: N1=(0,pe.useCallback)((Q,h1=[])=>{x1?x1.postMessage...
     hm = re.search(
-        r'([A-Za-z0-9_$]+)=\(0,[A-Za-z0-9_$]+\.useCallback\)\(\(Q,h1=\[\]\)=>\{[^}]*postMessage\(\{command:Q,args:h1\}\)',
+        r"([A-Za-z0-9_$]+)=\(0,[A-Za-z0-9_$]+\.useCallback\)\(\(Q,h1=\[\]\)=>\{[^}]*postMessage\(\{command:Q,args:h1\}\)",
         text,
     )
     helper = hm.group(1) if hm else "N1"
