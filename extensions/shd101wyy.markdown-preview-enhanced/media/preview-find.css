@@ -69,13 +69,19 @@
 }
 
 mark.mpe-find-hit {
-  background: var(--vscode-editor-findMatchHighlightBackground, rgba(234, 92, 0, 0.33));
-  color: inherit;
+  background: #ffe566;
+  color: #1a1a1a;
   border-radius: 2px;
-  padding: 0;
+  padding: 0 1px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 mark.mpe-find-hit.mpe-find-current {
-  background: var(--vscode-editor-findMatchBackground, rgba(234, 186, 0, 0.55));
-  outline: 1px solid var(--vscode-editor-findMatchBorder, #f6c177);
+  background: #ff8c00;
+  color: #000;
+  font-weight: 700;
+  outline: 2px solid #ff4500;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.45);
 }
