@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Surgically patch MPE bundles if markers missing (upgrade-safe-ish).
 
-Targets MPE 0.8.32 minified names; keeps a few 0.8.30 fallbacks.
+Targets MPE 0.8.34 / 0.8.32 minified names; keeps a few 0.8.30 fallbacks.
 """
 from __future__ import annotations
 
@@ -13,14 +13,32 @@ PROXY_MARKER = "vscode-api-proxy.js"
 LIGHTBOX_MARKER = 'media","lightbox.js"'
 CODE_COPY_MARKER = 'media","code-copy.js"'
 PREVIEW_FIND_MARKER = 'media","preview-find.js"'
-# 0.8.32 postMessage helper is N1; 0.8.30 used X
+# dblclick reveal markers (helper name varies by version)
 DBLCLICK_MARKER_NEW = 'N1("revealLine",[n.current,Ce])'
 DBLCLICK_MARKER_OLD = 'X("revealLine",[n.current,Ce])'
+DBLCLICK_MARKER_834 = 'He("revealLine",[n.current,Ce])'
 DISABLE_WHEEL_ZOOM_MARKER = "mpe-disable-wheel-zoom"
 REVEAL_OPEN = "openTextDocument(r)"
 # openPreviewToTheSide: jump focus to already-open preview (Opt/Alt+Cmd+V)
 FOCUS_EXISTING_MARKER = ".reveal(void 0,!1),await "
 CLOSE_PREVIEW_WITH_DOC_MARKER = "[MPE] auto-close preview on editor close"
+
+# --- 0.8.34 openPreviewToTheSide (Xr / V5e) ---
+OPEN_PREVIEW_SIDE_OLD_834 = (
+    "async function o(te){let ue=Xr.window.activeTextEditor;if(ue){te||(te=ue.document.uri);"
+    "try{await(await n(te)).initPreview({sourceUri:te,document:ue.document,cursorLine:V5e(ue),"
+    "viewOptions:{viewColumn:Xr.ViewColumn.Beside,preserveFocus:!0}})}"
+    'catch(Qe){console.error("[MPE] openPreviewToTheSide failed:",Qe),'
+    "Xr.window.showErrorMessage(`MPE Preview failed: ${Qe instanceof Error?Qe.message:String(Qe)}`)}}}"
+)
+OPEN_PREVIEW_SIDE_NEW_834 = (
+    "async function o(te){let ue=Xr.window.activeTextEditor;if(ue){te||(te=ue.document.uri);"
+    "try{let pA=await n(te),dA=pA.getPreviews(te);dA&&dA.length>0&&dA[0].reveal(void 0,!1),"
+    "await pA.initPreview({sourceUri:te,document:ue.document,cursorLine:V5e(ue),"
+    "viewOptions:{viewColumn:Xr.ViewColumn.Beside,preserveFocus:!0}})}"
+    'catch(Qe){console.error("[MPE] openPreviewToTheSide failed:",Qe),'
+    "Xr.window.showErrorMessage(`MPE Preview failed: ${Qe instanceof Error?Qe.message:String(Qe)}`)}}}"
+)
 
 # --- 0.8.32 openPreviewToTheSide ---
 OPEN_PREVIEW_SIDE_OLD_832 = (
@@ -54,6 +72,23 @@ OPEN_PREVIEW_SIDE_NEW_830 = (
     "viewOptions:{viewColumn:xt.ViewColumn.Beside,preserveFocus:!0}})}"
     'catch(Ye){console.error("[MPE] openPreviewToTheSide failed:",Ye),'
     "xt.window.showErrorMessage(`MPE Preview failed: ${Ye instanceof Error?Ye.message:String(Ye)}`)}}}"
+)
+
+CLOSE_PREVIEW_ANCHOR_834 = (
+    "}}})),e.subscriptions.push(Xr.window.onDidChangeActiveColorTheme("
+)
+CLOSE_PREVIEW_INSERT_834 = (
+    "}}})),e.subscriptions.push(Xr.workspace.onDidCloseTextDocument(async fe=>{"
+    "if(!u1(fe))return;"
+    "try{let Ve=fe.uri,eA=await n(Ve);"
+    "if(p_()===sx.SinglePreview){"
+    "if(!eA.previewHasTheSameSingleSourceUri(Ve))return;"
+    "let uA=eA.getPreviews(Ve);uA&&uA.forEach(h=>h.dispose())"
+    "}else if(eA.isPreviewOn(Ve)){"
+    "let uA=eA.getPreviews(Ve);uA&&uA.forEach(h=>h.dispose())"
+    "}}"
+    f'catch(Ye){{console.warn("{CLOSE_PREVIEW_WITH_DOC_MARKER} failed:",Ye)}}'
+    "})),e.subscriptions.push(Xr.window.onDidChangeActiveColorTheme("
 )
 
 CLOSE_PREVIEW_ANCHOR_832 = (
@@ -90,6 +125,28 @@ CLOSE_PREVIEW_INSERT_830 = (
     "})),e.subscriptions.push(xt.window.onDidChangeActiveColorTheme("
 )
 
+# 0.8.34: revealLine -> yAu (Xr / H7r)
+YAU_OLD = (
+    "function yAu(e,t){let r=Xr.Uri.parse(e);Xr.window.visibleTextEditors.filter("
+    "n=>u1(n.document)&&n.document.uri.fsPath===r.fsPath).forEach(n=>{"
+    "let o=Math.min(Math.floor(t),n.document.lineCount-1),i=t-o,"
+    "a=n.document.lineAt(o).text,s=Math.floor(i*a.length);"
+    "H7r=Date.now()+500,n.revealRange(new Xr.Range(o,s,o+1,0),Xr.TextEditorRevealType.InCenter),"
+    "H7r=Date.now()+500})}"
+)
+YAU_NEW = (
+    "async function yAu(e,t){let r=Xr.Uri.parse(e),"
+    "n=Xr.window.visibleTextEditors.find(o=>u1(o.document)&&o.document.uri.fsPath===r.fsPath);"
+    "if(!n){try{let o=await Xr.workspace.openTextDocument(r);"
+    "n=await Xr.window.showTextDocument(o,{preserveFocus:!1,preview:!1})}"
+    "catch(o){return console.error(o)}}if(!n)return;"
+    "let o=Math.min(Math.floor(t),n.document.lineCount-1),i=t-o,"
+    "a=n.document.lineAt(o).text,s=Math.floor(i*a.length);"
+    "H7r=Date.now()+500,n.selection=new Xr.Selection(o,s,o,s),"
+    "n.revealRange(new Xr.Range(o,s,o+1,0),Xr.TextEditorRevealType.InCenter),"
+    "H7r=Date.now()+500}"
+)
+
 # 0.8.32: _crossnote.revealLine -> zsu (sync, visible editors only)
 ZSU_OLD = (
     "function zsu(e,t){let r=dn.Uri.parse(e);dn.window.visibleTextEditors.filter("
@@ -118,7 +175,11 @@ def patch_extension_js(path: Path) -> None:
     changed = False
 
     if FOCUS_EXISTING_MARKER not in text:
-        if OPEN_PREVIEW_SIDE_OLD_832 in text:
+        if OPEN_PREVIEW_SIDE_OLD_834 in text:
+            text = text.replace(OPEN_PREVIEW_SIDE_OLD_834, OPEN_PREVIEW_SIDE_NEW_834, 1)
+            changed = True
+            print("patched: openPreviewToTheSide focuses existing preview (0.8.34)")
+        elif OPEN_PREVIEW_SIDE_OLD_832 in text:
             text = text.replace(OPEN_PREVIEW_SIDE_OLD_832, OPEN_PREVIEW_SIDE_NEW_832, 1)
             changed = True
             print("patched: openPreviewToTheSide focuses existing preview (0.8.32)")
@@ -135,7 +196,13 @@ def patch_extension_js(path: Path) -> None:
         print("ok: openPreviewToTheSide already focuses existing preview")
 
     if CLOSE_PREVIEW_WITH_DOC_MARKER not in text:
-        if CLOSE_PREVIEW_ANCHOR_832 in text:
+        if CLOSE_PREVIEW_ANCHOR_834 in text:
+            text = text.replace(CLOSE_PREVIEW_ANCHOR_834, CLOSE_PREVIEW_INSERT_834, 1)
+            changed = True
+            print(
+                "patched: close MPE preview when source markdown document closes (0.8.34)"
+            )
+        elif CLOSE_PREVIEW_ANCHOR_832 in text:
             text = text.replace(CLOSE_PREVIEW_ANCHOR_832, CLOSE_PREVIEW_INSERT_832, 1)
             changed = True
             print(
@@ -156,10 +223,26 @@ def patch_extension_js(path: Path) -> None:
         print("ok: close preview on source document close already present")
 
     if PROXY_MARKER not in text:
-        # 0.8.32 upstream: let m="";if(Wi("enableImageLightbox")...
+        # 0.8.34: let m="";if(Ui("enableImageLightbox")??!0)...
+        # 0.8.32: let m="";if(Wi("enableImageLightbox")...
         # Inject proxy first, then force lightbox to append (m+=).
+        m834 = 'let m="";if(Ui("enableImageLightbox")??!0)'
         m832 = 'let m="";if(Wi("enableImageLightbox")'
-        if m832 in text:
+        if m834 in text:
+            proxy = (
+                'let m="";'
+                '{let ie=A.webview.asWebviewUri(Os.Uri.joinPath(this.context.extensionUri,"media","vscode-api-proxy.js"));'
+                'm=`<script src="${ie}"></script>`}'
+                'if(Ui("enableImageLightbox")??!0)'
+            )
+            text = text.replace(m834, proxy, 1)
+            old_lb = 'm=`<link rel="stylesheet" href="${E}"><script defer src="${y}"></script>`'
+            new_lb = 'm+=`<link rel="stylesheet" href="${E}"><script defer src="${y}"></script>`'
+            if old_lb in text:
+                text = text.replace(old_lb, new_lb, 1)
+            changed = True
+            print("patched: webview script inject (0.8.34 proxy+lightbox append)")
+        elif m832 in text:
             proxy = (
                 'let m="";'
                 '{let ie=A.webview.asWebviewUri(Os.Uri.joinPath(this.context.extensionUri,"media","vscode-api-proxy.js"));'
@@ -313,8 +396,14 @@ def patch_extension_js(path: Path) -> None:
     else:
         print("ok: preview-find already injected")
 
-    # revealLine: 0.8.32 zsu / 0.8.30 XBa
-    if ZSU_OLD in text:
+    # revealLine: 0.8.34 yAu / 0.8.32 zsu / 0.8.30 XBa
+    if YAU_OLD in text:
+        text = text.replace(YAU_OLD, YAU_NEW, 1)
+        changed = True
+        print("patched: yAu revealLine openTextDocument (0.8.34)")
+    elif "async function yAu(e,t)" in text and "openTextDocument(r)" in text:
+        print("ok: yAu already opens document")
+    elif ZSU_OLD in text:
         text = text.replace(ZSU_OLD, ZSU_NEW, 1)
         changed = True
         print("patched: zsu revealLine openTextDocument (0.8.32)")
@@ -351,7 +440,7 @@ def patch_extension_js(path: Path) -> None:
             else:
                 print("ok: revealLine handler already opens document")
         else:
-            print("WARN: zsu/XBa revealLine handler not found")
+            print("WARN: yAu/zsu/XBa revealLine handler not found")
 
     if changed:
         path.write_text(text)
@@ -362,13 +451,23 @@ def patch_preview_js(path: Path) -> None:
     text = path.read_text(errors="ignore")
     changed = False
 
-    has_dblclick = DBLCLICK_MARKER_NEW in text or DBLCLICK_MARKER_OLD in text
+    # 注意：preview.js 里 monaco/diff 也有 dblclick，不能只靠 addEventListener("dblclick")
+    has_dblclick = (
+        DBLCLICK_MARKER_NEW in text
+        or DBLCLICK_MARKER_OLD in text
+        or DBLCLICK_MARKER_834 in text
+        or (
+            ".mpe-lightbox-overlay" in text
+            and 'addEventListener("dblclick"' in text
+            and 'getAttribute("data-source-line")' in text
+        )
+    )
     if has_dblclick:
         print("ok: preview dblclick reveal already present")
     else:
         # Detect React namespace + postMessage helper from surrounding keydown effect
         ns, helper, key_var = detect_preview_symbols(text)
-        # walker 变量不要用 N1：0.8.32 的 postMessage helper 就叫 N1，会影子冲突
+        # walker 变量不要用 N1/He：会与 postMessage helper 影子冲突
         hook = (
             f'(0,{ns}.useEffect)(()=>{{let F1=e1=>{{if(e1.target&&e1.target.closest&&e1.target.closest(".mpe-lightbox-overlay"))return;'
             f'let Te=e1.target,Ce=null;for(;Te&&Te!==document.body;){{let pA=Te.getAttribute&&Te.getAttribute("data-source-line");'
@@ -404,11 +503,17 @@ def patch_preview_js(path: Path) -> None:
 
 def detect_preview_symbols(text: str) -> tuple[str, str, str]:
     """Return (reactNs, postMessageHelper, keydownHandlerVar)."""
-    # Prefer the alwaysShowBacklinks-adjacent keydown effect (preview root)
+    # Prefer the alwaysShowBacklinks-adjacent keydown effect (preview root).
+    # 0.8.34 inserts an extra useEffect between backlinks toggle and keydown.
     m = re.search(
         r'alwaysShowBacklinksInPreview\}\),\(0,([A-Za-z0-9_$]+)\.useEffect\)\(\(\)=>\(document\.addEventListener\("keydown",([A-Za-z0-9_$]+)\)',
         text,
     )
+    if not m:
+        m = re.search(
+            r'alwaysShowBacklinksInPreview\]\),\(0,([A-Za-z0-9_$]+)\.useEffect\)\(\(\)=>\(document\.addEventListener\("keydown",([A-Za-z0-9_$]+)\)',
+            text,
+        )
     if m:
         ns, key_var = m.group(1), m.group(2)
     else:
@@ -420,9 +525,11 @@ def detect_preview_symbols(text: str) -> tuple[str, str, str]:
         if m2:
             ns, key_var = m2.group(1), m2.group(2)
 
-    # postMessage helper: N1=(0,pe.useCallback)((Q,h1=[])=>{x1?x1.postMessage...
+    # postMessage helper:
+    # 0.8.32: N1=(0,pe.useCallback)((Q,h1=[])=>{...postMessage({command:Q,args:h1})}
+    # 0.8.34: He=(0,de.useCallback)((I1,R1=[])=>{$i?$i.postMessage({command:I1,args:R1})
     hm = re.search(
-        r"([A-Za-z0-9_$]+)=\(0,[A-Za-z0-9_$]+\.useCallback\)\(\(Q,h1=\[\]\)=>\{[^}]*postMessage\(\{command:Q,args:h1\}\)",
+        r"([A-Za-z0-9_$]+)=\(0,[A-Za-z0-9_$]+\.useCallback\)\(\(([A-Za-z0-9_$]+),([A-Za-z0-9_$]+)=\[\]\)=>\{[^}]*postMessage\(\{command:\2,args:\3\}\)",
         text,
     )
     helper = hm.group(1) if hm else "N1"
@@ -435,7 +542,7 @@ def insert_after_keydown_effect(
     candidates_vars = []
     if key_var:
         candidates_vars.append(key_var)
-    candidates_vars.extend(["Kr", "Jt"])
+    candidates_vars.extend(["Et", "Kr", "Jt"])
 
     for kv in candidates_vars:
         anchor = f'document.addEventListener("keydown",{kv})'

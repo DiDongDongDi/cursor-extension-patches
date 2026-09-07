@@ -75,7 +75,10 @@
         });
         caseBtn.addEventListener("click", function () {
             caseSensitive = !caseSensitive;
-            caseBtn.setAttribute("aria-pressed", caseSensitive ? "true" : "false");
+            caseBtn.setAttribute(
+                "aria-pressed",
+                caseSensitive ? "true" : "false",
+            );
             runSearch(input.value, true);
             input.focus();
         });
@@ -122,7 +125,10 @@
                 var p = node.parentElement;
                 if (!p) return NodeFilter.FILTER_REJECT;
                 if (SKIP_TAGS[p.tagName]) return NodeFilter.FILTER_REJECT;
-                if (p.closest && p.closest(".mpe-find-bar, .mpe-lightbox-overlay")) {
+                if (
+                    p.closest &&
+                    p.closest(".mpe-find-bar, .mpe-lightbox-overlay")
+                ) {
                     return NodeFilter.FILTER_REJECT;
                 }
                 if (p.closest && p.closest("mark.mpe-find-hit")) {
@@ -152,7 +158,8 @@
                 return;
             }
 
-            var root = document.getElementById("preview-panel") || document.body;
+            var root =
+                document.getElementById("preview-panel") || document.body;
             var nodes = collectTextNodes(root);
             var flags = caseSensitive ? "g" : "gi";
             var re;
@@ -168,7 +175,7 @@
             }
 
             matches = Array.prototype.slice.call(
-                document.querySelectorAll("mark.mpe-find-hit")
+                document.querySelectorAll("mark.mpe-find-hit"),
             );
             if (matches.length === 0) {
                 current = -1;
@@ -198,7 +205,7 @@
             found = true;
             if (match.index > lastIndex) {
                 frag.appendChild(
-                    document.createTextNode(text.slice(lastIndex, match.index))
+                    document.createTextNode(text.slice(lastIndex, match.index)),
                 );
             }
             var mark = document.createElement("mark");
@@ -230,7 +237,11 @@
         var el = matches[current];
         el.classList.add("mpe-find-current");
         try {
-            el.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+            el.scrollIntoView({
+                block: "center",
+                inline: "nearest",
+                behavior: "smooth",
+            });
         } catch (err) {
             el.scrollIntoView(true);
         }
@@ -293,7 +304,9 @@
 
     function isFindShortcut(e) {
         var mod = isMac() ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
-        return mod && !e.altKey && !e.shiftKey && (e.key === "f" || e.key === "F");
+        return (
+            mod && !e.altKey && !e.shiftKey && (e.key === "f" || e.key === "F")
+        );
     }
 
     function isFindNextShortcut(e) {
@@ -311,7 +324,7 @@
             // 灯箱打开时不抢快捷键
             if (
                 document.querySelector(
-                    ".mpe-lightbox-overlay.mpe-lightbox-visible"
+                    ".mpe-lightbox-overlay.mpe-lightbox-visible",
                 )
             ) {
                 return;
@@ -341,7 +354,7 @@
                 }
             }
         },
-        true
+        true,
     );
 
     function scheduleReapply() {
