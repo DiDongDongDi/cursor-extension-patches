@@ -25,6 +25,7 @@ FOCUS_EXISTING_MARKER = ".reveal(void 0,!1),await "
 REUSE_PREVIEW_COLUMN_MARKER = "function mpePreferredPreviewColumn"
 CLOSE_PREVIEW_WITH_DOC_MARKER = "[MPE] auto-close preview on editor close"
 
+
 def _mpe_preferred_preview_column_fn() -> str:
     # Shared helper: reuse an existing MPE preview editor group; else Beside.
     # Prefer concrete panel.viewColumn, then tabGroups with viewType, then rightmost group.
@@ -64,12 +65,8 @@ OPEN_PREVIEW_SIDE_NEW_834 = (
     'catch(Qe){console.error("[MPE] openPreviewToTheSide failed:",Qe),'
     "Xr.window.showErrorMessage(`MPE Preview failed: ${Qe instanceof Error?Qe.message:String(Qe)}`)}}}"
 )
-OPEN_LOCKED_PREVIEW_SIDE_OLD_834 = (
-    "viewOptions:{viewColumn:Xr.ViewColumn.Beside,preserveFocus:!0}}),Qe.lockSinglePreview()"
-)
-OPEN_LOCKED_PREVIEW_SIDE_NEW_834 = (
-    "viewOptions:{viewColumn:mpePreferredPreviewColumn(Xr,null),preserveFocus:!0}}),Qe.lockSinglePreview()"
-)
+OPEN_LOCKED_PREVIEW_SIDE_OLD_834 = "viewOptions:{viewColumn:Xr.ViewColumn.Beside,preserveFocus:!0}}),Qe.lockSinglePreview()"
+OPEN_LOCKED_PREVIEW_SIDE_NEW_834 = "viewOptions:{viewColumn:mpePreferredPreviewColumn(Xr,null),preserveFocus:!0}}),Qe.lockSinglePreview()"
 
 # --- 0.8.32 openPreviewToTheSide ---
 OPEN_PREVIEW_SIDE_OLD_832 = (
@@ -96,12 +93,8 @@ OPEN_PREVIEW_SIDE_NEW_832 = (
     'catch(yt){console.error("[MPE] openPreviewToTheSide failed:",yt),'
     "dn.window.showErrorMessage(`MPE Preview failed: ${yt instanceof Error?yt.message:String(yt)}`)}}}"
 )
-OPEN_LOCKED_PREVIEW_SIDE_OLD_832 = (
-    "viewOptions:{viewColumn:dn.ViewColumn.Beside,preserveFocus:!0}}),Qe.lockSinglePreview()"
-)
-OPEN_LOCKED_PREVIEW_SIDE_NEW_832 = (
-    "viewOptions:{viewColumn:mpePreferredPreviewColumn(dn,null),preserveFocus:!0}}),Qe.lockSinglePreview()"
-)
+OPEN_LOCKED_PREVIEW_SIDE_OLD_832 = "viewOptions:{viewColumn:dn.ViewColumn.Beside,preserveFocus:!0}}),Qe.lockSinglePreview()"
+OPEN_LOCKED_PREVIEW_SIDE_NEW_832 = "viewOptions:{viewColumn:mpePreferredPreviewColumn(dn,null),preserveFocus:!0}}),Qe.lockSinglePreview()"
 
 # --- 0.8.30 fallback ---
 OPEN_PREVIEW_SIDE_OLD_830 = (
@@ -128,12 +121,8 @@ OPEN_PREVIEW_SIDE_NEW_830 = (
     'catch(Ye){console.error("[MPE] openPreviewToTheSide failed:",Ye),'
     "xt.window.showErrorMessage(`MPE Preview failed: ${Ye instanceof Error?Ye.message:String(Ye)}`)}}}"
 )
-OPEN_LOCKED_PREVIEW_SIDE_OLD_830 = (
-    "viewOptions:{viewColumn:xt.ViewColumn.Beside,preserveFocus:!0}}),Qe.lockSinglePreview()"
-)
-OPEN_LOCKED_PREVIEW_SIDE_NEW_830 = (
-    "viewOptions:{viewColumn:mpePreferredPreviewColumn(xt,null),preserveFocus:!0}}),Qe.lockSinglePreview()"
-)
+OPEN_LOCKED_PREVIEW_SIDE_OLD_830 = "viewOptions:{viewColumn:xt.ViewColumn.Beside,preserveFocus:!0}}),Qe.lockSinglePreview()"
+OPEN_LOCKED_PREVIEW_SIDE_NEW_830 = "viewOptions:{viewColumn:mpePreferredPreviewColumn(xt,null),preserveFocus:!0}}),Qe.lockSinglePreview()"
 
 CLOSE_PREVIEW_ANCHOR_834 = (
     "}}})),e.subscriptions.push(Xr.window.onDidChangeActiveColorTheme("
@@ -237,7 +226,9 @@ def patch_extension_js(path: Path) -> None:
 
     if REUSE_PREVIEW_COLUMN_MARKER not in text:
         if OPEN_PREVIEW_SIDE_FOCUS_834 in text:
-            text = text.replace(OPEN_PREVIEW_SIDE_FOCUS_834, OPEN_PREVIEW_SIDE_NEW_834, 1)
+            text = text.replace(
+                OPEN_PREVIEW_SIDE_FOCUS_834, OPEN_PREVIEW_SIDE_NEW_834, 1
+            )
             changed = True
             print(
                 "patched: openPreviewToTheSide reuses existing preview column (0.8.34, from focus)"
@@ -245,9 +236,13 @@ def patch_extension_js(path: Path) -> None:
         elif OPEN_PREVIEW_SIDE_OLD_834 in text:
             text = text.replace(OPEN_PREVIEW_SIDE_OLD_834, OPEN_PREVIEW_SIDE_NEW_834, 1)
             changed = True
-            print("patched: openPreviewToTheSide reuses existing preview column (0.8.34)")
+            print(
+                "patched: openPreviewToTheSide reuses existing preview column (0.8.34)"
+            )
         elif OPEN_PREVIEW_SIDE_FOCUS_832 in text:
-            text = text.replace(OPEN_PREVIEW_SIDE_FOCUS_832, OPEN_PREVIEW_SIDE_NEW_832, 1)
+            text = text.replace(
+                OPEN_PREVIEW_SIDE_FOCUS_832, OPEN_PREVIEW_SIDE_NEW_832, 1
+            )
             changed = True
             print(
                 "patched: openPreviewToTheSide reuses existing preview column (0.8.32, from focus)"
@@ -255,9 +250,13 @@ def patch_extension_js(path: Path) -> None:
         elif OPEN_PREVIEW_SIDE_OLD_832 in text:
             text = text.replace(OPEN_PREVIEW_SIDE_OLD_832, OPEN_PREVIEW_SIDE_NEW_832, 1)
             changed = True
-            print("patched: openPreviewToTheSide reuses existing preview column (0.8.32)")
+            print(
+                "patched: openPreviewToTheSide reuses existing preview column (0.8.32)"
+            )
         elif OPEN_PREVIEW_SIDE_FOCUS_830 in text:
-            text = text.replace(OPEN_PREVIEW_SIDE_FOCUS_830, OPEN_PREVIEW_SIDE_NEW_830, 1)
+            text = text.replace(
+                OPEN_PREVIEW_SIDE_FOCUS_830, OPEN_PREVIEW_SIDE_NEW_830, 1
+            )
             changed = True
             print(
                 "patched: openPreviewToTheSide reuses existing preview column (0.8.30, from focus)"
@@ -265,7 +264,9 @@ def patch_extension_js(path: Path) -> None:
         elif OPEN_PREVIEW_SIDE_OLD_830 in text:
             text = text.replace(OPEN_PREVIEW_SIDE_OLD_830, OPEN_PREVIEW_SIDE_NEW_830, 1)
             changed = True
-            print("patched: openPreviewToTheSide reuses existing preview column (0.8.30)")
+            print(
+                "patched: openPreviewToTheSide reuses existing preview column (0.8.30)"
+            )
         else:
             print(
                 "WARN: openPreviewToTheSide pattern not found; "
