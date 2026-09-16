@@ -20,6 +20,16 @@
 
 其余已装扩展：**未发现本地改动**（仅 marketplace 原版）。
 
+### 禁止自动更新（pinned）
+
+补丁扩展升级会冲掉本地改动。在 `~/.cursor/extensions/extensions.json` 里给上表每个扩展设：
+
+```json
+"metadata": { "pinned": true }
+```
+
+等同扩展面板右键 **Disable Auto Update**。不要关全局 `extensions.autoUpdate`。需要升版本时：先 unpin / 手动更新 → `./scripts/apply-one.sh <id>` → 再 pin。
+
 另：`~/MyNotes/.crossnote/` 不是插件，但是 MPE 工作区配置，已快照到 `workspace-config/MyNotes.crossnote/`。
 
 ## 目录结构
