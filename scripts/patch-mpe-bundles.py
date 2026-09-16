@@ -36,16 +36,24 @@ def _detect_webview_uri_ns(text: str) -> str:
     return "Os"
 
 
+# Old fallback reused any rightmost editor group (Chat / checkbox preview / etc.),
+# so MPE stopped opening Beside the markdown source.
+MPE_PREFERRED_COLUMN_OLD_FALLBACK = (
+    'let cols=vs.window.tabGroups.all.map(g=>g.viewColumn).filter(c=>typeof c==="number");'
+    "return cols.length>=2?Math.max(...cols):vs.ViewColumn.Beside}"
+)
+MPE_PREFERRED_COLUMN_NEW_FALLBACK = "return vs.ViewColumn.Beside}"
+
+
 def _mpe_preferred_preview_column_fn() -> str:
-    # Shared helper: reuse an existing MPE preview editor group; else Beside.
-    # Prefer concrete panel.viewColumn, then tabGroups with viewType, then rightmost group.
+    # Shared helper: reuse an existing MPE preview editor group; else Beside the active editor.
+    # Do NOT Math.max across all groups — that steals Chat / checkbox / other side panels.
     return (
         "function mpePreferredPreviewColumn(vs,prefer){"
         "if(prefer!=null&&prefer.viewColumn!=null)return prefer.viewColumn;"
         "for(let g of vs.window.tabGroups.all)for(let tb of g.tabs){"
         'let inp=tb.input;if(inp&&inp.viewType==="markdown-preview-enhanced")return g.viewColumn}'
-        'let cols=vs.window.tabGroups.all.map(g=>g.viewColumn).filter(c=>typeof c==="number");'
-        "return cols.length>=2?Math.max(...cols):vs.ViewColumn.Beside}"
+        "return vs.ViewColumn.Beside}"
     )
 
 
@@ -368,6 +376,19 @@ def patch_extension_js(path: Path) -> None:
             )
     else:
         print("ok: openPreviewToTheSide already reuses existing preview column")
+
+    if (
+        REUSE_PREVIEW_COLUMN_MARKER in text
+        and MPE_PREFERRED_COLUMN_OLD_FALLBACK in text
+    ):
+        text = text.replace(
+            MPE_PREFERRED_COLUMN_OLD_FALLBACK, MPE_PREFERRED_COLUMN_NEW_FALLBACK, 1
+        )
+        changed = True
+        print(
+            "patched: mpePreferredPreviewColumn falls back to Beside "
+            "(stop stealing non-MPE rightmost column)"
+        )
 
     if REUSE_PREVIEW_COLUMN_MARKER in text:
         if OPEN_LOCKED_PREVIEW_SIDE_OLD_835 in text:
