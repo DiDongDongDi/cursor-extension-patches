@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Surgically patch MPE bundles if markers missing (upgrade-safe-ish).
 
-Targets MPE 0.8.35 / 0.8.34 / 0.8.32 minified names; keeps a few 0.8.30 fallbacks.
+Targets MPE 0.8.39 / 0.8.35 / 0.8.34 / 0.8.32 minified names; keeps a few 0.8.30 fallbacks.
 """
 from __future__ import annotations
 
@@ -29,6 +29,8 @@ CLOSE_PREVIEW_WITH_DOC_MARKER = "[MPE] auto-close preview on editor close"
 
 def _detect_webview_uri_ns(text: str) -> str:
     """Uri alias used in webview media joinPath (0.8.35=ba, 0.8.34=Os)."""
+    if 'va.Uri.joinPath(this.context.extensionUri,"media","lightbox' in text:
+        return "va"
     if 'ba.Uri.joinPath(this.context.extensionUri,"media","lightbox' in text:
         return "ba"
     if 'Os.Uri.joinPath(this.context.extensionUri,"media","lightbox' in text:
@@ -56,6 +58,32 @@ def _mpe_preferred_preview_column_fn() -> str:
         "return vs.ViewColumn.Beside}"
     )
 
+
+# --- 0.8.39 openPreviewToTheSide (wr / U5e / l10n). Otu in this bundle is unrelated. ---
+OPEN_PREVIEW_SIDE_OLD_839 = (
+    "async function o(ke){let Ge=wr.window.activeTextEditor;if(Ge){ke||(ke=Ge.document.uri);"
+    "try{await(await n(ke)).initPreview({sourceUri:ke,document:Ge.document,cursorLine:U5e(Ge),"
+    "viewOptions:{viewColumn:wr.ViewColumn.Beside,preserveFocus:!0}})}"
+    'catch(Me){console.error("[MPE] openPreviewToTheSide failed:",Me),'
+    'wr.window.showErrorMessage(wr.l10n.t("MPE Preview failed: {message}",'
+    "{message:Me instanceof Error?Me.message:String(Me)}))}}}"
+)
+OPEN_PREVIEW_SIDE_NEW_839 = (
+    _mpe_preferred_preview_column_fn()
+    + "async function o(ke){let Ge=wr.window.activeTextEditor;if(Ge){ke||(ke=Ge.document.uri);"
+    "try{let pA=await n(ke),dA=pA.getPreviews(ke);dA&&dA.length>0&&dA[0].reveal(void 0,!1),"
+    "await pA.initPreview({sourceUri:ke,document:Ge.document,cursorLine:U5e(Ge),"
+    "viewOptions:{viewColumn:mpePreferredPreviewColumn(wr,dA&&dA[0]),preserveFocus:!0}})}"
+    'catch(Me){console.error("[MPE] openPreviewToTheSide failed:",Me),'
+    'wr.window.showErrorMessage(wr.l10n.t("MPE Preview failed: {message}",'
+    "{message:Me instanceof Error?Me.message:String(Me)}))}}}"
+)
+OPEN_LOCKED_PREVIEW_SIDE_OLD_839 = (
+    "viewOptions:{viewColumn:wr.ViewColumn.Beside,preserveFocus:!0}}),Me.lockSinglePreview()"
+)
+OPEN_LOCKED_PREVIEW_SIDE_NEW_839 = (
+    "viewOptions:{viewColumn:mpePreferredPreviewColumn(wr,null),preserveFocus:!0}}),Me.lockSinglePreview()"
+)
 
 # --- 0.8.35 openPreviewToTheSide (Rr / y5e / l10n) ---
 OPEN_PREVIEW_SIDE_OLD_835 = (
@@ -173,6 +201,23 @@ OPEN_PREVIEW_SIDE_NEW_830 = (
 OPEN_LOCKED_PREVIEW_SIDE_OLD_830 = "viewOptions:{viewColumn:xt.ViewColumn.Beside,preserveFocus:!0}}),Qe.lockSinglePreview()"
 OPEN_LOCKED_PREVIEW_SIDE_NEW_830 = "viewOptions:{viewColumn:mpePreferredPreviewColumn(xt,null),preserveFocus:!0}}),Qe.lockSinglePreview()"
 
+CLOSE_PREVIEW_ANCHOR_839 = (
+    "}}})),e.subscriptions.push(wr.window.onDidChangeActiveColorTheme("
+)
+CLOSE_PREVIEW_INSERT_839 = (
+    "}}})),e.subscriptions.push(wr.workspace.onDidCloseTextDocument(async fe=>{"
+    "if(!x1(fe))return;"
+    "try{let Ve=fe.uri,eA=await n(Ve);"
+    "if(fS()===fx.SinglePreview){"
+    "if(!eA.previewHasTheSameSingleSourceUri(Ve))return;"
+    "let uA=eA.getPreviews(Ve);uA&&uA.forEach(h=>h.dispose())"
+    "}else if(eA.isPreviewOn(Ve)){"
+    "let uA=eA.getPreviews(Ve);uA&&uA.forEach(h=>h.dispose())"
+    "}}"
+    f'catch(Ye){{console.warn("{CLOSE_PREVIEW_WITH_DOC_MARKER} failed:",Ye)}}'
+    "})),e.subscriptions.push(wr.window.onDidChangeActiveColorTheme("
+)
+
 CLOSE_PREVIEW_ANCHOR_835 = (
     "}}})),e.subscriptions.push(Rr.window.onDidChangeActiveColorTheme("
 )
@@ -239,6 +284,28 @@ CLOSE_PREVIEW_INSERT_830 = (
     "}}"
     f'catch(Ye){{console.warn("{CLOSE_PREVIEW_WITH_DOC_MARKER} failed:",Ye)}}'
     "})),e.subscriptions.push(xt.window.onDidChangeActiveColorTheme("
+)
+
+# 0.8.39: revealLine -> kiu (wr / yFr / x1). Do not treat Otu as revealLine.
+KIU_OLD = (
+    "function kiu(e,t){let r=wr.Uri.parse(e);wr.window.visibleTextEditors.filter("
+    "n=>x1(n.document)&&n.document.uri.fsPath===r.fsPath).forEach(n=>{"
+    "let o=Math.min(Math.floor(t),n.document.lineCount-1),i=t-o,"
+    "a=n.document.lineAt(o).text,s=Math.floor(i*a.length);"
+    "yFr=Date.now()+500,n.revealRange(new wr.Range(o,s,o+1,0),wr.TextEditorRevealType.InCenter),"
+    "yFr=Date.now()+500})}"
+)
+KIU_NEW = (
+    "async function kiu(e,t){let r=wr.Uri.parse(e),"
+    "n=wr.window.visibleTextEditors.find(o=>x1(o.document)&&o.document.uri.fsPath===r.fsPath);"
+    "if(!n){try{let o=await wr.workspace.openTextDocument(r);"
+    "n=await wr.window.showTextDocument(o,{preserveFocus:!1,preview:!1})}"
+    "catch(o){return console.error(o)}}if(!n)return;"
+    "let o=Math.min(Math.floor(t),n.document.lineCount-1),i=t-o,"
+    "a=n.document.lineAt(o).text,s=Math.floor(i*a.length);"
+    "yFr=Date.now()+500,n.selection=new wr.Selection(o,s,o,s),"
+    "n.revealRange(new wr.Range(o,s,o+1,0),wr.TextEditorRevealType.InCenter),"
+    "yFr=Date.now()+500}"
 )
 
 # 0.8.35: revealLine -> Otu (Rr / F7r / d1)
@@ -313,7 +380,13 @@ def patch_extension_js(path: Path) -> None:
     changed = False
 
     if REUSE_PREVIEW_COLUMN_MARKER not in text:
-        if OPEN_PREVIEW_SIDE_FOCUS_835 in text:
+        if OPEN_PREVIEW_SIDE_OLD_839 in text:
+            text = text.replace(OPEN_PREVIEW_SIDE_OLD_839, OPEN_PREVIEW_SIDE_NEW_839, 1)
+            changed = True
+            print(
+                "patched: openPreviewToTheSide reuses existing preview column (0.8.39)"
+            )
+        elif OPEN_PREVIEW_SIDE_FOCUS_835 in text:
             text = text.replace(
                 OPEN_PREVIEW_SIDE_FOCUS_835, OPEN_PREVIEW_SIDE_NEW_835, 1
             )
@@ -391,7 +464,13 @@ def patch_extension_js(path: Path) -> None:
         )
 
     if REUSE_PREVIEW_COLUMN_MARKER in text:
-        if OPEN_LOCKED_PREVIEW_SIDE_OLD_835 in text:
+        if OPEN_LOCKED_PREVIEW_SIDE_OLD_839 in text:
+            text = text.replace(
+                OPEN_LOCKED_PREVIEW_SIDE_OLD_839, OPEN_LOCKED_PREVIEW_SIDE_NEW_839, 1
+            )
+            changed = True
+            print("patched: openLockedPreviewToTheSide reuses preview column (0.8.39)")
+        elif OPEN_LOCKED_PREVIEW_SIDE_OLD_835 in text:
             text = text.replace(
                 OPEN_LOCKED_PREVIEW_SIDE_OLD_835, OPEN_LOCKED_PREVIEW_SIDE_NEW_835, 1
             )
@@ -416,7 +495,8 @@ def patch_extension_js(path: Path) -> None:
             changed = True
             print("patched: openLockedPreviewToTheSide reuses preview column (0.8.30)")
         elif (
-            OPEN_LOCKED_PREVIEW_SIDE_NEW_835 in text
+            OPEN_LOCKED_PREVIEW_SIDE_NEW_839 in text
+            or OPEN_LOCKED_PREVIEW_SIDE_NEW_835 in text
             or OPEN_LOCKED_PREVIEW_SIDE_NEW_834 in text
             or OPEN_LOCKED_PREVIEW_SIDE_NEW_832 in text
             or OPEN_LOCKED_PREVIEW_SIDE_NEW_830 in text
@@ -429,7 +509,13 @@ def patch_extension_js(path: Path) -> None:
             )
 
     if CLOSE_PREVIEW_WITH_DOC_MARKER not in text:
-        if CLOSE_PREVIEW_ANCHOR_835 in text:
+        if CLOSE_PREVIEW_ANCHOR_839 in text:
+            text = text.replace(CLOSE_PREVIEW_ANCHOR_839, CLOSE_PREVIEW_INSERT_839, 1)
+            changed = True
+            print(
+                "patched: close MPE preview when source markdown document closes (0.8.39)"
+            )
+        elif CLOSE_PREVIEW_ANCHOR_835 in text:
             text = text.replace(CLOSE_PREVIEW_ANCHOR_835, CLOSE_PREVIEW_INSERT_835, 1)
             changed = True
             print(
@@ -466,9 +552,24 @@ def patch_extension_js(path: Path) -> None:
         # 0.8.32: let m="";if(Wi("enableImageLightbox")...
         # Inject proxy first, then force lightbox to append (m+=).
         uri_ns = _detect_webview_uri_ns(text)
+        m839 = 'let g="";if(Ui("enableImageLightbox")??!0)'
         m834 = 'let m="";if(Ui("enableImageLightbox")??!0)'
         m832 = 'let m="";if(Wi("enableImageLightbox")'
-        if m834 in text:
+        if m839 in text:
+            proxy = (
+                'let g="";'
+                '{let ie=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","vscode-api-proxy.js"));'
+                'g=`<script src="${ie}"></script>`}'
+                'if(Ui("enableImageLightbox")??!0)'
+            )
+            text = text.replace(m839, proxy, 1)
+            old_lb = 'g=`<link rel="stylesheet" href="${y}"><script defer src="${v}"></script>`'
+            new_lb = 'g+=`<link rel="stylesheet" href="${y}"><script defer src="${v}"></script>`'
+            if old_lb in text:
+                text = text.replace(old_lb, new_lb, 1)
+            changed = True
+            print("patched: webview script inject (0.8.39 proxy+lightbox append)")
+        elif m834 in text:
             proxy = (
                 'let m="";'
                 f'{{let ie=A.webview.asWebviewUri({uri_ns}.Uri.joinPath(this.context.extensionUri,"media","vscode-api-proxy.js"));'
@@ -533,6 +634,14 @@ def patch_extension_js(path: Path) -> None:
         # Prefer append after lightbox link in 0.8.32 (E/y vars) or 0.8.30 (m/Q)
         anchors = [
             (
+                'g+=`<link rel="stylesheet" href="${y}"><script defer src="${v}"></script>`}',
+                (
+                    '{let mpeCcCss=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","code-copy.css")),'
+                    'mpeCcJs=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","code-copy.js"));'
+                    'g+=`<link rel="stylesheet" href="${mpeCcCss}"><script defer src="${mpeCcJs}"></script>`}'
+                ),
+            ),
+            (
                 'm+=`<link rel="stylesheet" href="${E}"><script defer src="${y}"></script>`}',
                 (
                     f'{{let mpeCcCss=A.webview.asWebviewUri({uri_ns}.Uri.joinPath(this.context.extensionUri,"media","code-copy.css")),'
@@ -593,6 +702,14 @@ def patch_extension_js(path: Path) -> None:
         injected = None
         anchors = [
             (
+                'g+=`<link rel="stylesheet" href="${mpeCcCss}"><script defer src="${mpeCcJs}"></script>`}',
+                (
+                    '{let mpeFindCss=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","preview-find.css")),'
+                    'mpeFindJs=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","preview-find.js"));'
+                    'g+=`<link rel="stylesheet" href="${mpeFindCss}"><script defer src="${mpeFindJs}"></script>`}'
+                ),
+            ),
+            (
                 'm+=`<link rel="stylesheet" href="${mpeCcCss}"><script defer src="${mpeCcJs}"></script>`}',
                 (
                     f'{{let mpeFindCss=A.webview.asWebviewUri({uri_ns}.Uri.joinPath(this.context.extensionUri,"media","preview-find.css")),'
@@ -640,8 +757,14 @@ def patch_extension_js(path: Path) -> None:
     else:
         print("ok: preview-find already injected")
 
-    # revealLine: 0.8.35 Otu / 0.8.34 yAu / 0.8.32 zsu / 0.8.30 XBa
-    if OTU_OLD in text:
+    # revealLine: 0.8.39 kiu first — this bundle also contains an unrelated Otu.
+    if KIU_OLD in text:
+        text = text.replace(KIU_OLD, KIU_NEW, 1)
+        changed = True
+        print("patched: kiu revealLine openTextDocument (0.8.39)")
+    elif "async function kiu(e,t)" in text and "openTextDocument(r)" in text:
+        print("ok: kiu already opens document")
+    elif OTU_OLD in text:
         text = text.replace(OTU_OLD, OTU_NEW, 1)
         changed = True
         print("patched: Otu revealLine openTextDocument (0.8.35)")
@@ -793,7 +916,7 @@ def insert_after_keydown_effect(
     candidates_vars = []
     if key_var:
         candidates_vars.append(key_var)
-    candidates_vars.extend(["Et", "Kr", "Jt", "kn"])
+    candidates_vars.extend(["an", "Et", "Kr", "Jt", "kn"])
 
     for kv in candidates_vars:
         anchor = f'document.addEventListener("keydown",{kv})'
