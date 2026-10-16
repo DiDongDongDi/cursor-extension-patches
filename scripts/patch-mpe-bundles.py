@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Surgically patch MPE bundles if markers missing (upgrade-safe-ish).
 
-Targets MPE 0.8.39 / 0.8.35 / 0.8.34 / 0.8.32 minified names; keeps a few 0.8.30 fallbacks.
+Targets MPE 0.8.40 / 0.8.39 / 0.8.35 / 0.8.34 / 0.8.32 minified names; keeps a few 0.8.30 fallbacks.
 """
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ DBLCLICK_MARKER_NEW = 'N1("revealLine",[n.current,Ce])'
 DBLCLICK_MARKER_OLD = 'X("revealLine",[n.current,Ce])'
 DBLCLICK_MARKER_834 = 'He("revealLine",[n.current,Ce])'
 DBLCLICK_MARKER_835 = 'Rt("revealLine",[n.current,Ce])'
+DBLCLICK_MARKER_EE = 'Ee("revealLine",[n.current,Ce])'
 DISABLE_WHEEL_ZOOM_MARKER = "mpe-disable-wheel-zoom"
 REVEAL_OPEN = "openTextDocument(r)"
 # openPreviewToTheSide: jump focus to already-open preview (Opt/Alt+Cmd+V)
@@ -28,13 +29,10 @@ CLOSE_PREVIEW_WITH_DOC_MARKER = "[MPE] auto-close preview on editor close"
 
 
 def _detect_webview_uri_ns(text: str) -> str:
-    """Uri alias used in webview media joinPath (0.8.35=ba, 0.8.34=Os)."""
-    if 'va.Uri.joinPath(this.context.extensionUri,"media","lightbox' in text:
-        return "va"
-    if 'ba.Uri.joinPath(this.context.extensionUri,"media","lightbox' in text:
-        return "ba"
-    if 'Os.Uri.joinPath(this.context.extensionUri,"media","lightbox' in text:
-        return "Os"
+    """Uri alias used in webview media joinPath (0.8.40=xa, 0.8.39=va, 0.8.35=ba, 0.8.34=Os)."""
+    for ns in ("xa", "va", "ba", "Os"):
+        if f'{ns}.Uri.joinPath(this.context.extensionUri,"media","lightbox' in text:
+            return ns
     return "Os"
 
 
@@ -58,6 +56,26 @@ def _mpe_preferred_preview_column_fn() -> str:
         "return vs.ViewColumn.Beside}"
     )
 
+
+# --- 0.8.40 openPreviewToTheSide (wr / U5e / l10n; locals Te/ze). ---
+OPEN_PREVIEW_SIDE_OLD_840 = (
+    "async function o(Te){let ze=wr.window.activeTextEditor;if(ze){Te||(Te=ze.document.uri);"
+    "try{await(await n(Te)).initPreview({sourceUri:Te,document:ze.document,cursorLine:U5e(ze),"
+    "viewOptions:{viewColumn:wr.ViewColumn.Beside,preserveFocus:!0}})}"
+    'catch(Me){console.error("[MPE] openPreviewToTheSide failed:",Me),'
+    'wr.window.showErrorMessage(wr.l10n.t("MPE Preview failed: {message}",'
+    "{message:Me instanceof Error?Me.message:String(Me)}))}}}"
+)
+OPEN_PREVIEW_SIDE_NEW_840 = (
+    _mpe_preferred_preview_column_fn()
+    + "async function o(Te){let ze=wr.window.activeTextEditor;if(ze){Te||(Te=ze.document.uri);"
+    "try{let pA=await n(Te),dA=pA.getPreviews(Te);dA&&dA.length>0&&dA[0].reveal(void 0,!1),"
+    "await pA.initPreview({sourceUri:Te,document:ze.document,cursorLine:U5e(ze),"
+    "viewOptions:{viewColumn:mpePreferredPreviewColumn(wr,dA&&dA[0]),preserveFocus:!0}})}"
+    'catch(Me){console.error("[MPE] openPreviewToTheSide failed:",Me),'
+    'wr.window.showErrorMessage(wr.l10n.t("MPE Preview failed: {message}",'
+    "{message:Me instanceof Error?Me.message:String(Me)}))}}}"
+)
 
 # --- 0.8.39 openPreviewToTheSide (wr / U5e / l10n). Otu in this bundle is unrelated. ---
 OPEN_PREVIEW_SIDE_OLD_839 = (
@@ -204,6 +222,20 @@ OPEN_LOCKED_PREVIEW_SIDE_NEW_830 = "viewOptions:{viewColumn:mpePreferredPreviewC
 CLOSE_PREVIEW_ANCHOR_839 = (
     "}}})),e.subscriptions.push(wr.window.onDidChangeActiveColorTheme("
 )
+# 0.8.40 shares the theme anchor with 0.8.39, but markdown check is E1 and previewMode is hS/hx.
+CLOSE_PREVIEW_INSERT_840 = (
+    "}}})),e.subscriptions.push(wr.workspace.onDidCloseTextDocument(async fe=>{"
+    "if(!E1(fe))return;"
+    "try{let Ve=fe.uri,eA=await n(Ve);"
+    "if(hS()===hx.SinglePreview){"
+    "if(!eA.previewHasTheSameSingleSourceUri(Ve))return;"
+    "let uA=eA.getPreviews(Ve);uA&&uA.forEach(h=>h.dispose())"
+    "}else if(eA.isPreviewOn(Ve)){"
+    "let uA=eA.getPreviews(Ve);uA&&uA.forEach(h=>h.dispose())"
+    "}}"
+    f'catch(Ye){{console.warn("{CLOSE_PREVIEW_WITH_DOC_MARKER} failed:",Ye)}}'
+    "})),e.subscriptions.push(wr.window.onDidChangeActiveColorTheme("
+)
 CLOSE_PREVIEW_INSERT_839 = (
     "}}})),e.subscriptions.push(wr.workspace.onDidCloseTextDocument(async fe=>{"
     "if(!x1(fe))return;"
@@ -284,6 +316,28 @@ CLOSE_PREVIEW_INSERT_830 = (
     "}}"
     f'catch(Ye){{console.warn("{CLOSE_PREVIEW_WITH_DOC_MARKER} failed:",Ye)}}'
     "})),e.subscriptions.push(xt.window.onDidChangeActiveColorTheme("
+)
+
+# 0.8.40: revealLine -> Wiu (wr / IFr / E1). x1 in this bundle takes a Uri, not a document.
+WIU_OLD = (
+    "function Wiu(e,t){let r=wr.Uri.parse(e);wr.window.visibleTextEditors.filter("
+    "n=>E1(n.document)&&n.document.uri.fsPath===r.fsPath).forEach(n=>{"
+    "let o=Math.min(Math.floor(t),n.document.lineCount-1),i=t-o,"
+    "a=n.document.lineAt(o).text,s=Math.floor(i*a.length);"
+    "IFr=Date.now()+500,n.revealRange(new wr.Range(o,s,o+1,0),wr.TextEditorRevealType.InCenter),"
+    "IFr=Date.now()+500})}"
+)
+WIU_NEW = (
+    "async function Wiu(e,t){let r=wr.Uri.parse(e),"
+    "n=wr.window.visibleTextEditors.find(o=>E1(o.document)&&o.document.uri.fsPath===r.fsPath);"
+    "if(!n){try{let o=await wr.workspace.openTextDocument(r);"
+    "n=await wr.window.showTextDocument(o,{preserveFocus:!1,preview:!1})}"
+    "catch(o){return console.error(o)}}if(!n)return;"
+    "let o=Math.min(Math.floor(t),n.document.lineCount-1),i=t-o,"
+    "a=n.document.lineAt(o).text,s=Math.floor(i*a.length);"
+    "IFr=Date.now()+500,n.selection=new wr.Selection(o,s,o,s),"
+    "n.revealRange(new wr.Range(o,s,o+1,0),wr.TextEditorRevealType.InCenter),"
+    "IFr=Date.now()+500}"
 )
 
 # 0.8.39: revealLine -> kiu (wr / yFr / x1). Do not treat Otu as revealLine.
@@ -380,7 +434,13 @@ def patch_extension_js(path: Path) -> None:
     changed = False
 
     if REUSE_PREVIEW_COLUMN_MARKER not in text:
-        if OPEN_PREVIEW_SIDE_OLD_839 in text:
+        if OPEN_PREVIEW_SIDE_OLD_840 in text:
+            text = text.replace(OPEN_PREVIEW_SIDE_OLD_840, OPEN_PREVIEW_SIDE_NEW_840, 1)
+            changed = True
+            print(
+                "patched: openPreviewToTheSide reuses existing preview column (0.8.40)"
+            )
+        elif OPEN_PREVIEW_SIDE_OLD_839 in text:
             text = text.replace(OPEN_PREVIEW_SIDE_OLD_839, OPEN_PREVIEW_SIDE_NEW_839, 1)
             changed = True
             print(
@@ -509,7 +569,16 @@ def patch_extension_js(path: Path) -> None:
             )
 
     if CLOSE_PREVIEW_WITH_DOC_MARKER not in text:
-        if CLOSE_PREVIEW_ANCHOR_839 in text:
+        if (
+            "function Wiu(e,t){let r=wr.Uri.parse(e)" in text
+            and CLOSE_PREVIEW_ANCHOR_839 in text
+        ):
+            text = text.replace(CLOSE_PREVIEW_ANCHOR_839, CLOSE_PREVIEW_INSERT_840, 1)
+            changed = True
+            print(
+                "patched: close MPE preview when source markdown document closes (0.8.40)"
+            )
+        elif CLOSE_PREVIEW_ANCHOR_839 in text:
             text = text.replace(CLOSE_PREVIEW_ANCHOR_839, CLOSE_PREVIEW_INSERT_839, 1)
             changed = True
             print(
@@ -558,7 +627,7 @@ def patch_extension_js(path: Path) -> None:
         if m839 in text:
             proxy = (
                 'let g="";'
-                '{let ie=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","vscode-api-proxy.js"));'
+                f'{{let ie=u.webview.asWebviewUri({uri_ns}.Uri.joinPath(this.context.extensionUri,"media","vscode-api-proxy.js"));'
                 'g=`<script src="${ie}"></script>`}'
                 'if(Ui("enableImageLightbox")??!0)'
             )
@@ -568,7 +637,9 @@ def patch_extension_js(path: Path) -> None:
             if old_lb in text:
                 text = text.replace(old_lb, new_lb, 1)
             changed = True
-            print("patched: webview script inject (0.8.39 proxy+lightbox append)")
+            print(
+                f"patched: webview script inject (0.8.39/0.8.40 proxy+lightbox append, uri={uri_ns})"
+            )
         elif m834 in text:
             proxy = (
                 'let m="";'
@@ -636,8 +707,8 @@ def patch_extension_js(path: Path) -> None:
             (
                 'g+=`<link rel="stylesheet" href="${y}"><script defer src="${v}"></script>`}',
                 (
-                    '{let mpeCcCss=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","code-copy.css")),'
-                    'mpeCcJs=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","code-copy.js"));'
+                    f'{{let mpeCcCss=u.webview.asWebviewUri({uri_ns}.Uri.joinPath(this.context.extensionUri,"media","code-copy.css")),'
+                    f'mpeCcJs=u.webview.asWebviewUri({uri_ns}.Uri.joinPath(this.context.extensionUri,"media","code-copy.js"));'
                     'g+=`<link rel="stylesheet" href="${mpeCcCss}"><script defer src="${mpeCcJs}"></script>`}'
                 ),
             ),
@@ -704,8 +775,8 @@ def patch_extension_js(path: Path) -> None:
             (
                 'g+=`<link rel="stylesheet" href="${mpeCcCss}"><script defer src="${mpeCcJs}"></script>`}',
                 (
-                    '{let mpeFindCss=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","preview-find.css")),'
-                    'mpeFindJs=u.webview.asWebviewUri(va.Uri.joinPath(this.context.extensionUri,"media","preview-find.js"));'
+                    f'{{let mpeFindCss=u.webview.asWebviewUri({uri_ns}.Uri.joinPath(this.context.extensionUri,"media","preview-find.css")),'
+                    f'mpeFindJs=u.webview.asWebviewUri({uri_ns}.Uri.joinPath(this.context.extensionUri,"media","preview-find.js"));'
                     'g+=`<link rel="stylesheet" href="${mpeFindCss}"><script defer src="${mpeFindJs}"></script>`}'
                 ),
             ),
@@ -757,8 +828,14 @@ def patch_extension_js(path: Path) -> None:
     else:
         print("ok: preview-find already injected")
 
-    # revealLine: 0.8.39 kiu first — this bundle also contains an unrelated Otu.
-    if KIU_OLD in text:
+    # revealLine: 0.8.40 Wiu first. 0.8.39 kiu next — that bundle also contains an unrelated Otu.
+    if WIU_OLD in text:
+        text = text.replace(WIU_OLD, WIU_NEW, 1)
+        changed = True
+        print("patched: Wiu revealLine openTextDocument (0.8.40)")
+    elif "async function Wiu(e,t)" in text and "openTextDocument(r)" in text:
+        print("ok: Wiu already opens document")
+    elif KIU_OLD in text:
         text = text.replace(KIU_OLD, KIU_NEW, 1)
         changed = True
         print("patched: kiu revealLine openTextDocument (0.8.39)")
@@ -813,7 +890,7 @@ def patch_extension_js(path: Path) -> None:
             else:
                 print("ok: revealLine handler already opens document")
         else:
-            print("WARN: Otu/yAu/zsu/XBa revealLine handler not found")
+            print("WARN: Wiu/Otu/yAu/zsu/XBa revealLine handler not found")
 
     if changed:
         path.write_text(text)
@@ -830,6 +907,7 @@ def patch_preview_js(path: Path) -> None:
         or DBLCLICK_MARKER_OLD in text
         or DBLCLICK_MARKER_834 in text
         or DBLCLICK_MARKER_835 in text
+        or DBLCLICK_MARKER_EE in text
         or (
             ".mpe-lightbox-overlay" in text
             and 'addEventListener("dblclick"' in text
@@ -923,13 +1001,23 @@ def insert_after_keydown_effect(
         idx = text.find(anchor)
         if idx < 0:
             continue
-        endings = (f"}}),[{kv}]),", f"}},[{kv}]),")
+        # Longer endings first: `}),[an]),` is a suffix of `}}),[an]),`.
+        # 0.8.40 keydown effect is a concise arrow `()=>(...),[an]),`.
+        # Older bundles use a block body `()=>{...}},[an]),`.
+        endings = (
+            "}}),[" + kv + "]),",
+            "}},[" + kv + "]),",
+            "}),[" + kv + "]),",
+        )
         for ending in endings:
             end = text.find(ending, idx)
             if end >= 0:
                 # Avoid double-inject: if our hook already sits right after, skip
                 insert_at = end + len(ending)
-                if 'addEventListener("dblclick"' in text[insert_at : insert_at + 400]:
+                if (
+                    'addEventListener("dblclick"' in hook
+                    and 'addEventListener("dblclick"' in text[insert_at : insert_at + 900]
+                ):
                     print("ok: dblclick hook already after keydown effect")
                     return text, False
                 if (
