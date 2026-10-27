@@ -32,7 +32,7 @@
 
 另：`~/MyNotes/.crossnote/` 不是插件，但是 MPE 工作区配置，已快照到 `workspace-config/MyNotes.crossnote/`。
 
-多机：在那台机器上跑 `./scripts/sync-this-machine.sh`（pull 补丁、apply、pin、MyNotes pull、合并 `user-settings.portable.json`）。不要整份覆盖 `settings.json`。Cursor 里对应命令 `/sync-cursor`。
+多机：在那台机器上跑 `./scripts/sync-this-machine.sh`（pull 补丁、apply、pin、MyNotes pull、合并 `user-settings.portable.json`、用仓库 `keybindings.json` 覆盖本机快捷键）。不要整份覆盖 `settings.json`。Cursor 里对应命令 `/sync-cursor`。本机改了快捷键后，把 User `keybindings.json` 拷回 `workspace-config/keybindings.json` 再 push，否则下次 sync 会用旧文件盖掉。
 
 ## 目录结构
 
@@ -45,6 +45,7 @@ extensions/
   kody-local.filtered-editor-switcher/        # Ctrl+Tab 过滤预览/聊天
 workspace-config/MyNotes.crossnote/
 workspace-config/user-settings.portable.json  # tab / MPE 主题，多机合并用
+workspace-config/keybindings.json             # 用户快捷键，sync 时覆盖本机
 scripts/apply-all.sh
 scripts/sync-from-cursor.sh
 scripts/pin-patched-extensions.sh

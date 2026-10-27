@@ -31,5 +31,24 @@ fi
 echo "==> merge portable settings"
 python3 "$ROOT/scripts/merge-portable-settings.py" "${DRY[@]}"
 
+echo "==> keybindings"
+SRC="$ROOT/workspace-config/keybindings.json"
+if [[ "$(uname)" == "Darwin" ]]; then
+  DEST="$HOME/Library/Application Support/Cursor/User/keybindings.json"
+else
+  DEST="$HOME/.config/Cursor/User/keybindings.json"
+fi
+if [[ ! -f "$SRC" ]]; then
+  echo "keybindings: 仓库里没有 $SRC"
+elif [[ -f "$DEST" ]] && cmp -s "$SRC" "$DEST"; then
+  echo "keybindings: 无差异"
+elif [[ ${#DRY[@]} -gt 0 ]]; then
+  echo "keybindings: 与仓库不同，dry-run 未覆盖"
+else
+  mkdir -p "$(dirname "$DEST")"
+  cp "$SRC" "$DEST"
+  echo "keybindings: 已用仓库覆盖 $DEST"
+fi
+
 echo
 echo "Done. Cursor: Developer: Reload Window"

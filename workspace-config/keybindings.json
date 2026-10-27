@@ -1,0 +1,224 @@
+// Place your key bindings in this file to override the defaults
+[
+    {
+        "key": "shift+alt+f",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "editorTextFocus && editorLangId == python",
+        "args": {
+            "text": "code-style-format ${file}\u000D"
+        }
+    },
+    {
+        "key": "shift+alt+f",
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "remove-markdown-title-numbers '${file}'\u000D"
+        },
+        "when": "editorTextFocus && editorLangId == markdown"
+    },
+    {
+        "key": "cmd+shift+r",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "editorTextFocus",
+        "args": {
+            "text": "python ${file}\u000D"
+        }
+    },
+    {
+        "key": "ctrl+shift+`",
+        "command": "-workbench.action.terminal.new",
+        "when": "terminalProcessSupported || terminalWebExtensionContributedProfile"
+    },
+    {
+        "key": "ctrl+shift+`",
+        "command": "workbench.action.terminal.toggleTerminal",
+        "when": "terminal.active"
+    },
+    {
+        "key": "ctrl+`",
+        "command": "-workbench.action.terminal.toggleTerminal",
+        "when": "terminal.active"
+    },
+    {
+        "key": "cmd+left",
+        "command": "workbench.action.navigateBack",
+        "when": "canNavigateBack"
+    },
+    {
+        "key": "ctrl+-",
+        "command": "-workbench.action.navigateBack",
+        "when": "canNavigateBack"
+    },
+    {
+        "key": "cmd+right",
+        "command": "workbench.action.navigateForward",
+        "when": "canNavigateForward"
+    },
+    {
+        "key": "ctrl+shift+-",
+        "command": "-workbench.action.navigateForward",
+        "when": "canNavigateForward"
+    },
+    {
+        "key": "cmd+u",
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "sh save.sh\n"
+        }
+    },
+    {
+        "key": "cmd+alt+u",
+        "command": "extension.addMarkdownIndex"
+    },
+    {
+        "key": "cmd+s",
+        "command": "workbench.action.files.saveAll"
+    },
+    {
+        "key": "cmd+g",
+        "command": "workbench.action.gotoLine"
+    },
+    {
+        "key": "ctrl+g",
+        "command": "-workbench.action.gotoLine"
+    },
+    {
+        "key": "cmd+n",
+        "command": "-workbench.action.files.newUntitledFile"
+    },
+    {
+        "key": "cmd+n",
+        "command": "workbench.action.files.newUntitledFile"
+    },
+    {
+        "key": "cmd+i",
+        "command": "composerMode.agent"
+    },
+    {
+        "key": "cmd+i",
+        "command": "composerMode.agent"
+    },
+    {
+        "key": "cmd+backspace",
+        "command": "composer.cancelComposerStep",
+        "when": "composerFocused || focusedView =~ /^workbench.panel.aichat.view/"
+    },
+    {
+        "key": "shift+cmd+backspace",
+        "command": "-composer.cancelComposerStep",
+        "when": "composerFocused || focusedView =~ /^workbench.panel.aichat.view/"
+    },
+    {
+        "key": "cmd+backspace",
+        "command": "editor.action.inlineDiffs.rejectAll",
+        "when": "editorTextFocus && @inlineDiffs.rejectAllEdits.isActiveEditorWithDiffs"
+    },
+    {
+        "key": "shift+cmd+backspace",
+        "command": "-editor.action.inlineDiffs.rejectAll",
+        "when": "editorTextFocus && @inlineDiffs.rejectAllEdits.isActiveEditorWithDiffs"
+    },
+    {
+        "key": "cmd+backspace",
+        "command": "editor.action.inlineDiffs.cancelPromptBar",
+        "when": "editorTextFocus && hasActivelyGeneratingPromptBarDiff"
+    },
+    {
+        "key": "shift+cmd+backspace",
+        "command": "-editor.action.inlineDiffs.cancelPromptBar",
+        "when": "editorTextFocus && hasActivelyGeneratingPromptBarDiff"
+    },
+    {
+        "key": "cmd+backspace",
+        "command": "editor.action.inlineDiffs.cancelEdits",
+        "when": "editorTextFocus && hasActivelyGeneratingDiff"
+    },
+    {
+        "key": "shift+cmd+backspace",
+        "command": "-editor.action.inlineDiffs.cancelEdits",
+        "when": "editorTextFocus && hasActivelyGeneratingDiff"
+    },
+    {
+        "key": "alt+right",
+        "command": "editor.action.inlineSuggest.acceptNextWord",
+        "when": "cppSuggestion && !editorReadonly || inlineSuggestionVisible && !editorReadonly"
+    },
+    {
+        "key": "cmd+right",
+        "command": "-editor.action.inlineSuggest.acceptNextWord",
+        "when": "cppSuggestion && !editorReadonly || inlineSuggestionVisible && !editorReadonly"
+    },
+    {
+        "key": "cmd+t",
+        "command": "composer.createNewComposerTab",
+        "when": "composerFocused || focusedView =~ /^workbench.panel.aichat.view/"
+    },
+    {
+        "key": "cmd+t",
+        "command": "-composer.createNewComposerTab",
+        "when": "composerFocused || focusedView =~ /^workbench.panel.aichat.view/"
+    },
+    {
+        "key": "cmd+l",
+        "command": "composer.createNewWithPrevContext",
+        "when": "composerFocused || focusedView =~ /^workbench.panel.aichat.view/"
+    },
+    {
+        "key": "cmd+n",
+        "command": "-composer.createNewWithPrevContext",
+        "when": "composerFocused || focusedView =~ /^workbench.panel.aichat.view/"
+    },
+    {
+        "key": "cmd+u",
+        "command": "composerMode.chat"
+    },
+    {
+        "key": "cmd+r",
+        "command": "editor.action.startFindReplaceAction",
+        "when": "editorFocus || editorIsOpen"
+    },
+    {
+        "key": "alt+cmd+f",
+        "command": "-editor.action.startFindReplaceAction",
+        "when": "editorFocus || editorIsOpen"
+    },
+    {
+        "key": "shift+enter",
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "\u001b\r"
+        },
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+alt+v",
+        "command": "extension.pasteImage",
+        "when": "editorTextFocus && editorLangId == markdown"
+    },
+    {
+        "key": "cmd+k v",
+        "command": "markdown-preview-enhanced.openPreviewToTheSide",
+        "when": "editorLangId =~ /^(markdown|quarto|prompt|instructions|chatagent|skill)$/"
+    },
+    {
+        "key": "alt+cmd+p",
+        "command": "workbench.action.pinEditor",
+        "when": "editorIsOpen"
+    },
+    {
+        "key": "ctrl+tab",
+        "command": "-workbench.action.quickOpenPreviousRecentlyUsedEditorInGroup"
+    },
+    {
+        "key": "ctrl+shift+tab",
+        "command": "-workbench.action.quickOpenLeastRecentlyUsedEditorInGroup"
+    },
+    {
+        "key": "ctrl+tab",
+        "command": "-workbench.action.quickOpenPreviousRecentlyUsedEditor"
+    },
+    {
+        "key": "ctrl+shift+tab",
+        "command": "-workbench.action.quickOpenLeastRecentlyUsedEditor"
+    }
+]
