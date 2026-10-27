@@ -1,0 +1,47 @@
+{
+  "markdown-preview-enhanced.automaticallyShowPreviewOfMarkdownBeingEdited": true,
+  "markdown-preview-enhanced.previewMode": "Multiple Previews",
+  "markdown-preview-enhanced.previewTheme": "vscode.css",
+  "markdown-preview-enhanced.codeBlockTheme": "auto.css",
+  "markdown-preview-enhanced.previewColorScheme": "editorColorScheme",
+  "markdown.extension.preview.autoShowPreviewToSide": false,
+  "markdown-checkbox-preview.autoPreview": false,
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.autoLockGroups": {
+    "markdown-preview-enhanced": true,
+    "mainThreadWebview-markdown.preview": true
+  },
+  "workbench.colorCustomizations": {
+    "[*Dark*]": {
+      "editorGroupHeader.tabsBackground": "#141414",
+      "editorGroupHeader.tabsBorder": "#2a2a2a",
+      "tab.border": "#2a2a2a",
+      "tab.activeBackground": "#1e1e1e",
+      "tab.activeForeground": "#ffffff",
+      "tab.activeBorderTop": "#00000000",
+      "tab.activeBorder": "#4ea1ff",
+      "tab.inactiveBackground": "#141414",
+      "tab.inactiveForeground": "#7a7a7a",
+      "tab.hoverBackground": "#222222",
+      "tab.hoverForeground": "#e6e6e6",
+      "tab.unfocusedActiveBackground": "#1a1a1a",
+      "tab.unfocusedActiveForeground": "#c8c8c8",
+      "tab.unfocusedActiveBorder": "#3d6fa3",
+      "tab.activeModifiedBorder": "#e2c08d",
+      "tab.inactiveModifiedBorder": "#9a8144",
+      "editor.lineHighlightBackground": "#2a4d73",
+      "editor.lineHighlightBorder": "#2a4d73"
+    },
+    "editor.findMatchBackground": "#ff8c00ee",
+    "editor.findMatchBorder": "#ff4500",
+    "editor.findMatchForeground": "#000000",
+    "editor.findMatchHighlightBackground": "#ffe566cc",
+    "editor.findMatchHighlightBorder": "#e6b800",
+    "editor.findMatchHighlightForeground": "#1a1a1a",
+    "editorOverviewRuler.findMatchForeground": "#ff8c00",
+    "editor.selectionBackground": "#ffe566",
+    "editor.selectionForeground": "#1a1a1a",
+    "editor.inactiveSelectionBackground": "#ffe566aa",
+    "editor.selectionHighlightBackground": "#ffe56666"
+  }
+}
