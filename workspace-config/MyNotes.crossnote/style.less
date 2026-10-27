@@ -46,3 +46,38 @@
         font-weight: 600;
     }
 }
+
+/* 深色主题：标题/diff 跟 vscode-dark 走，避免浅色底留在深色预览里 */
+body.vscode-dark .markdown-preview.markdown-preview,
+body.vscode-high-contrast .markdown-preview.markdown-preview,
+body.editor-dark .markdown-preview.markdown-preview,
+.markdown-preview.markdown-preview.vscode-dark,
+.markdown-preview.markdown-preview.vscode-high-contrast {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        color: #58a6ff;
+    }
+
+    .token.deleted,
+    .token.deleted-sign,
+    .token.prefix.deleted {
+        color: #ff7b72 !important;
+        background-color: rgba(248, 81, 73, 0.15) !important;
+    }
+
+    .token.inserted,
+    .token.inserted-sign,
+    .token.prefix.inserted {
+        color: #3fb950 !important;
+        background-color: rgba(46, 160, 67, 0.15) !important;
+    }
+
+    .token.coord {
+        color: #58a6ff !important;
+        background-color: rgba(56, 139, 253, 0.15) !important;
+    }
+}

@@ -46,4 +46,33 @@
         background-color: #ddf4ff !important;
         font-weight: 600;
     }
+
+    /* 深色主题：head.html 的 !important 浅色底会压过 style.less，必须另写一套 */
+    body.vscode-dark .token.deleted,
+    body.vscode-dark .token.deleted-sign,
+    body.vscode-dark .token.prefix.deleted,
+    body.editor-dark .token.deleted,
+    body.editor-dark .token.deleted-sign,
+    body.editor-dark .token.prefix.deleted {
+        color: #ff7b72 !important;
+        background-color: rgba(248, 81, 73, 0.15) !important;
+        text-decoration: none !important;
+    }
+    body.vscode-dark .token.inserted,
+    body.vscode-dark .token.inserted-sign,
+    body.vscode-dark .token.prefix.inserted,
+    body.editor-dark .token.inserted,
+    body.editor-dark .token.inserted-sign,
+    body.editor-dark .token.prefix.inserted {
+        color: #3fb950 !important;
+        background-color: rgba(46, 160, 67, 0.15) !important;
+        border-bottom: none !important;
+        text-decoration: none !important;
+    }
+    body.vscode-dark .token.coord,
+    body.editor-dark .token.coord {
+        color: #58a6ff !important;
+        background-color: rgba(56, 139, 253, 0.15) !important;
+        font-weight: 600;
+    }
 </style>
