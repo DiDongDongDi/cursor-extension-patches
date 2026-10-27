@@ -5,7 +5,6 @@
   "markdown-preview-enhanced.codeBlockTheme": "auto.css",
   "markdown-preview-enhanced.previewColorScheme": "editorColorScheme",
   "markdown.extension.preview.autoShowPreviewToSide": false,
-  "markdown-checkbox-preview.autoPreview": false,
   "workbench.editor.enablePreview": false,
   "workbench.editor.autoLockGroups": {
     "markdown-preview-enhanced": true,

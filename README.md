@@ -32,7 +32,7 @@
 
 另：`~/MyNotes/.crossnote/` 不是插件，但是 MPE 工作区配置，已快照到 `workspace-config/MyNotes.crossnote/`。
 
-多机：tab / MPE 可移植 settings 在 `workspace-config/user-settings.portable.json`，**合并进**各机 User settings，不要整份覆盖 `settings.json`。已有机器拉齐见 skill 场景 H。
+多机：在那台机器上跑 `./scripts/sync-this-machine.sh`（pull 补丁、apply、pin、MyNotes pull、合并 `user-settings.portable.json`）。不要整份覆盖 `settings.json`。Cursor 里对应命令 `/sync-cursor`。
 
 ## 目录结构
 
